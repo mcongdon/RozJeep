@@ -12,8 +12,8 @@ int leftMotorForwardIndicatorPin = 0;     // Left Motor is going forward indicat
 int leftMotorReverseIndicatorPin = 1;     // Left Motor is going reverse indicator
 int leftMotorForwardOutputPin    = 2;     // Tell Left Motor to go forward pin
 int leftMotorReverseOutputPin    = 3;     // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin     = 4;     // pwm output left motor Forward Speed
-int leftMotorReverseSpeedPin     = 5;     // pwm output left motor Reverse
+int leftMotorForwardSpeedPin     = 5;     // pwm output left motor Forward Speed
+int leftMotorReverseSpeedPin     = 6;     // pwm output left motor Reverse
 
 
 
@@ -22,7 +22,7 @@ int ledPin        = 13;     // LED on Arduino Board
 // throttle calibration
 int throttleValue   = 0;
 int throttleMin     = 100;
-int throttleMax     = 860;
+int throttleMax     = 1000;
 
 int leftMotorForward    = 0; 
 int leftMotorReverse    = 0; 
@@ -37,8 +37,8 @@ void setup() {
   Serial.begin(9600); 
    
   //Init pins
-  pinMode(leftMotorForwardIndicatorPin, OUTPUT);
-  pinMode(leftMotorReverseIndicatorPin, OUTPUT);
+  pinMode(leftMotorForwardIndicatorPin, INPUT);
+  pinMode(leftMotorReverseIndicatorPin, INPUT);
   pinMode(leftMotorForwardOutputPin, OUTPUT);
   pinMode(leftMotorReverseOutputPin, OUTPUT);
   pinMode(leftMotorForwardSpeedPin, OUTPUT);
@@ -50,7 +50,7 @@ void setup() {
   analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
 
-  // calibrate min voltage of throttle pedal
+  // calibrate min throttle pedal
   throttleValue = analogRead(throttleInputPin);
   throttleMin = throttleValue + 10; 
   
@@ -66,15 +66,14 @@ void loop() {
 
   // read throttle pedal
   throttleValue = analogRead(throttleInputPin);
-  
   // apply the calibration to the sensor reading
-  //throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 255);
+  throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 1000);
   // in case the sensor value is outside the range seen during calibration
-  //throttleValue = constrain(throttleValue, 0, 255);
+  throttleValue = constrain(throttleValue, 0, 1000);
 
 
   // Need to handle reverse... 
-  if(throttleValue > 20 ) 
+  if(throttleValue > 100 ) 
   {
     IsForward = true; 
   } else {
@@ -99,14 +98,15 @@ void loop() {
 
    
   // output to motors
-  digitalWrite(leftMotorForwardOutputPin, leftMotorForward); 
-  digitalWrite(leftMotorReverseOutputPin, leftMotorReverse);   
+  digitalWrite(leftMotorForwardOutputPin, HIGH); 
+  digitalWrite(leftMotorReverseOutputPin, LOW);   
   analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
   
   delay(10);
   
-  Serial.println(throttleValue);
+  //Serial.println(throttleValue);
 
+  Serial.println(leftMotorForwardSpeed);
  
 }

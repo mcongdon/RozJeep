@@ -87,9 +87,12 @@ void loop() {
     leftMotorForwardSpeed = throttleValue;
     leftMotorReverseSpeed = 0; 
     leftMotorForward = 1;
-    leftMotorReverse = 0;  
+    leftMotorReverse = 0; 
+    Serial.println("Forward"); 
+    
   } else {
     // apply brakes 
+    Serial.println("Stopped"); 
     leftMotorForwardSpeed = 0;
     leftMotorReverseSpeed = 0; 
     leftMotorForward = 0;
@@ -98,8 +101,8 @@ void loop() {
 
    
   // output to motors
-  digitalWrite(leftMotorForwardOutputPin, HIGH); 
-  digitalWrite(leftMotorReverseOutputPin, LOW);   
+  digitalWrite(leftMotorForwardOutputPin, leftMotorForward); 
+  digitalWrite(leftMotorReverseOutputPin, leftMotorReverse);   
   analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
   

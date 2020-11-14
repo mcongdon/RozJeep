@@ -51,7 +51,7 @@ void setup() {
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
 
   // calibrate min voltage of throttle pedal
-  throttleValue = analogRead(throttlePin);
+  throttleValue = analogRead(throttleInputPin);
   throttleMin = throttleValue + 10; 
   
 
@@ -65,7 +65,7 @@ void setup() {
 void loop() {
 
   // read throttle pedal
-  throttleValue = analogRead(throttlePin);
+  throttleValue = analogRead(throttleInputPin);
   
   // apply the calibration to the sensor reading
   //throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 255);

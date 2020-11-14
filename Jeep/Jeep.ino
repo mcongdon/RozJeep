@@ -22,7 +22,7 @@ int ledPin        = 13;     // LED on Arduino Board
 // throttle calibration
 int throttleValue   = 0;
 int throttleMin     = 100;
-int throttleMax     = 1000;
+int throttleMax     = 800;
 
 int leftMotorForward    = 0; 
 int leftMotorReverse    = 0; 
@@ -67,13 +67,13 @@ void loop() {
   // read throttle pedal
   throttleValue = analogRead(throttleInputPin);
   // apply the calibration to the sensor reading
-  throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 1000);
+  throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 255);
   // in case the sensor value is outside the range seen during calibration
-  throttleValue = constrain(throttleValue, 0, 1000);
+  throttleValue = constrain(throttleValue, 0, 255);
 
 
   // Need to handle reverse... 
-  if(throttleValue > 100 ) 
+  if(throttleValue > 80 ) 
   {
     IsForward = true; 
   } else {

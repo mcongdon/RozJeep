@@ -8,12 +8,12 @@
 // pin definitions
 int throttleInputPin   = A0;     // input pin for throttle pedal
 
-int leftMotorForwardIndicatorPin = 0;     // Left Motor is going forward indicator
-int leftMotorReverseIndicatorPin = 1;     // Left Motor is going reverse indicator
-int leftMotorForwardOutputPin    = 2;     // Tell Left Motor to go forward pin
-int leftMotorReverseOutputPin    = 3;     // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin     = 5;     // pwm output left motor Forward Speed
-int leftMotorReverseSpeedPin     = 6;     // pwm output left motor Reverse
+int leftMotorForwardIndicatorPin = 22;      // Left Motor is going forward indicator
+int leftMotorReverseIndicatorPin = 23;      // Left Motor is going reverse indicator
+int leftMotorForwardOutputPin    = 24;      // Tell Left Motor to go forward pin
+int leftMotorReverseOutputPin    = 25;      // Tell Left Motor to go reverse pin
+int leftMotorForwardSpeedPin     = 5;       // pwm output left motor Forward Speed
+int leftMotorReverseSpeedPin     = 6;       // pwm output left motor Reverse
 
 
 
@@ -87,12 +87,9 @@ void loop() {
     leftMotorForwardSpeed = throttleValue;
     leftMotorReverseSpeed = 0; 
     leftMotorForward = 1;
-    leftMotorReverse = 0; 
-    Serial.println("Forward"); 
-    
+    leftMotorReverse = 1;  
   } else {
     // apply brakes 
-    Serial.println("Stopped"); 
     leftMotorForwardSpeed = 0;
     leftMotorReverseSpeed = 0; 
     leftMotorForward = 0;
@@ -101,8 +98,8 @@ void loop() {
 
    
   // output to motors
-  digitalWrite(leftMotorForwardOutputPin, leftMotorForward); 
-  digitalWrite(leftMotorReverseOutputPin, leftMotorReverse);   
+  digitalWrite(leftMotorForwardOutputPin, HIGH); 
+  digitalWrite(leftMotorReverseOutputPin, HIGH);   
   analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
   

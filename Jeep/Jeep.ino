@@ -15,6 +15,12 @@ int leftMotorReverseOutputPin    = 25;      // Tell Left Motor to go reverse pin
 int leftMotorForwardSpeedPin     = 5;       // pwm output left motor Forward Speed
 int leftMotorReverseSpeedPin     = 6;       // pwm output left motor Reverse
 
+int rightMotorForwardIndicatorPin = 26;      // Right Motor is going forward indicator
+int rightMotorReverseIndicatorPin = 27;      // Right Motor is going reverse indicator
+int rightMotorForwardOutputPin    = 28;      // Tell Right Motor to go forward pin
+int rightMotorReverseOutputPin    = 29;      // Tell Right Motor to go reverse pin
+int rightMotorForwardSpeedPin     = 9;       // pwm output right motor Forward Speed
+int rightMotorReverseSpeedPin     = 10;       // pwm output right motor Reverse
 
 
 int ledPin        = 13;     // LED on Arduino Board
@@ -24,10 +30,11 @@ int throttleValue   = 0;
 int throttleMin     = 100;
 int throttleMax     = 800;
 
-int leftMotorForward    = 0; 
-int leftMotorReverse    = 0; 
-int leftMotorForwardSpeed    = 0; 
-int leftMotorReverseSpeed    = 0; 
+int leftMotorForwardSpeed     = 0; 
+int leftMotorReverseSpeed     = 0; 
+int rightMotorForwardSpeed    = 0; 
+int rightMotorReverseSpeed    = 0; 
+
 
 bool IsForward = false; 
 
@@ -39,28 +46,38 @@ void setup() {
   //Init pins
   pinMode(leftMotorForwardIndicatorPin, INPUT);
   pinMode(leftMotorReverseIndicatorPin, INPUT);
+  pinMode(rightMotorForwardIndicatorPin, INPUT);
+  pinMode(rightMotorReverseIndicatorPin, INPUT);
+
   pinMode(leftMotorForwardOutputPin, OUTPUT);
   pinMode(leftMotorReverseOutputPin, OUTPUT);
+  pinMode(rightMotorForwardOutputPin, OUTPUT);
+  pinMode(rightMotorReverseOutputPin, OUTPUT);
+  
   pinMode(leftMotorForwardSpeedPin, OUTPUT);
   pinMode(leftMotorReverseSpeedPin, OUTPUT);
+  pinMode(rightMotorForwardSpeedPin, OUTPUT);
+  pinMode(rightMotorReverseSpeedPin, OUTPUT);
 
-  // init Left motor (apply parking brake) 
-  digitalWrite(leftMotorForwardOutputPin, leftMotorForward); 
-  digitalWrite(leftMotorReverseOutputPin, leftMotorReverse);   
+  // init motor (apply parking brake) 
+  digitalWrite(leftMotorForwardOutputPin, LOW); 
+  digitalWrite(leftMotorReverseOutputPin, LOW);
+  digitalWrite(rightMotorForwardOutputPin, LOW); 
+  digitalWrite(rightMotorReverseOutputPin, LOW);
+     
   analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
+  analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
+  analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
 
   // calibrate min throttle pedal
   throttleValue = analogRead(throttleInputPin);
   throttleMin = throttleValue + 10; 
   
-
-  // light indicator pin when setup complete 
-  Serial.println("Setup Complete:");
-
   // TODO need to have a forward back button of some sort. TBD. 
   IsForward = true;
-  }
+  
+}
 
 void loop() {
 
@@ -82,31 +99,43 @@ void loop() {
   }
   
   
-  // Apply direction var to motor controll 
+  // Apply direction var to motor control
   if(IsForward) {
-    leftMotorForwardSpeed = throttleValue;
-    leftMotorReverseSpeed = 0; 
-    leftMotorForward = 1;
-    leftMotorReverse = 1;  
+    
+    // set forward speed
+    leftMotorForwardSpeed   = throttleValue;
+    leftMotorReverseSpeed   = 0; 
+    
+    rightMotorForwardSpeed  = throttleValue;
+    rightMotorReverseSpeed  = 0; 
+
+    // enable motors
+    digitalWrite(leftMotorForwardOutputPin, HIGH); 
+    digitalWrite(leftMotorReverseOutputPin, HIGH);   
+    digitalWrite(rightMotorForwardOutputPin, HIGH); 
+    digitalWrite(rightMotorReverseOutputPin, HIGH);   
+    
   } else {
     // apply brakes 
     leftMotorForwardSpeed = 0;
     leftMotorReverseSpeed = 0; 
-    leftMotorForward = 0;
-    leftMotorReverse = 0;     
-  }
+    rightMotorForwardSpeed = 0;
+    rightMotorReverseSpeed = 0; 
+    
+    // shut off motors
+    digitalWrite(leftMotorForwardOutputPin, LOW); 
+    digitalWrite(leftMotorReverseOutputPin, LOW);   
+    digitalWrite(rightMotorForwardOutputPin, LOW); 
+    digitalWrite(rightMotorReverseOutputPin, LOW);    
 
-   
-  // output to motors
-  digitalWrite(leftMotorForwardOutputPin, HIGH); 
-  digitalWrite(leftMotorReverseOutputPin, HIGH);   
+  }
+  
+  // apply speed
   analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
+  analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
+  analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
   
-  delay(10);
-  
-  //Serial.println(throttleValue);
-
-  Serial.println(leftMotorForwardSpeed);
- 
+  delay(2);
+   
 }

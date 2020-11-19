@@ -7,6 +7,8 @@
 
 // pin definitions
 int throttleInputPin   = A0;     // input pin for throttle pedal
+int pingInputPin       = 12;     // input pin for front ping (collision detection)
+
 
 int leftMotorForwardIndicatorPin = 22;      // Left Motor is going forward indicator
 int leftMotorReverseIndicatorPin = 23;      // Left Motor is going reverse indicator
@@ -43,7 +45,11 @@ void setup() {
   // open serial port connection
   Serial.begin(9600); 
    
-  //Init pins
+  //Init sensor pins
+  pinMode(throttleInputPin, INPUT);
+  pinMode(pingInputPin, INPUT);
+  
+  //Init motor pins    
   pinMode(leftMotorForwardIndicatorPin, INPUT);
   pinMode(leftMotorReverseIndicatorPin, INPUT);
   pinMode(rightMotorForwardIndicatorPin, INPUT);
@@ -137,5 +143,7 @@ void loop() {
   analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
   
   delay(2);
-   
+  
+  int ping = digitalRead(pingInputPin);
+  Serial.println(ping); 
 }

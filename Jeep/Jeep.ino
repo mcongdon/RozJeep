@@ -104,7 +104,7 @@ void loop() {
   // convert the time into a distance
   pingInches = microsecondsToInches(pingDuration);
 
-  Serial.println(inches); 
+  Serial.println(pingInches); 
 
   
   // read throttle pedal

@@ -6,8 +6,10 @@
  */
 
 // pin definitions
-int throttleInputPin   = A0;     // input pin for throttle pedal
-int pingInputPin       = 12;     // input pin for front ping (collision detection)
+int throttleInputPin    = A0;     // input pin for throttle pedal
+int leftAnalogHallPin   = A1;
+int leftDigitalHallPin  = 7;
+int backPingPin         = 12;               // input pin for back ping (collision detection)
 
 
 int leftMotorForwardIndicatorPin = 22;      // Left Motor is going forward indicator
@@ -26,11 +28,15 @@ int rightMotorReverseSpeedPin     = 10;       // pwm output right motor Reverse
 
 
 int ledPin        = 13;     // LED on Arduino Board
+int buzzerPin     = 53; 
 
 // throttle calibration
 int throttleValue   = 0;
 int throttleMin     = 100;
 int throttleMax     = 800;
+
+long leftMotorAdjust = 1;     // factor to reduce speed during turn  
+long rightMotorAdjust = 1;    // factor to reduce speed during turn 
 
 int leftMotorForwardSpeed     = 0; 
 int leftMotorReverseSpeed     = 0; 
@@ -38,16 +44,19 @@ int rightMotorForwardSpeed    = 0;
 int rightMotorReverseSpeed    = 0; 
 
 // initial state stopped
-bool MoveForward = false; 
+bool IsMoving = false; 
 
 void setup() {
   
   // open serial port connection
-  Serial.begin(9600); 
+  //Serial.begin(9600); 
    
   //Init sensor pins
   pinMode(throttleInputPin, INPUT);
-  pinMode(pingInputPin, INPUT);
+  pinMode(backPingPin, INPUT);
+  pinMode(leftAnalogHallPin, INPUT);
+  pinMode(leftDigitalHallPin, INPUT);
+
   
   //Init motor pins    
   pinMode(leftMotorForwardIndicatorPin, INPUT);
@@ -84,29 +93,31 @@ void setup() {
 
 void loop() {
 
-  
+  // Back Ping 
+  /*-------------------------------------------------------------*/
   // The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
   // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-  long pingDuration, pingInches;
-  pinMode(pingInputPin, OUTPUT);
-  digitalWrite(pingInputPin, LOW);
+  long backPingDuration, backPingInches;
+  pinMode(backPingPin, OUTPUT);
+  digitalWrite(backPingPin, LOW);
   delayMicroseconds(2);
-  digitalWrite(pingInputPin, HIGH);
+  digitalWrite(backPingPin, HIGH);
   delayMicroseconds(5);
-  digitalWrite(pingInputPin, LOW);
+  digitalWrite(backPingPin, LOW);
 
   // The same pin is used to read the signal from the PING))): a HIGH pulse
   // whose duration is the time (in microseconds) from the sending of the ping
   // to the reception of its echo off of an object.
-  pinMode(pingInputPin, INPUT);
-  pingDuration = pulseIn(pingInputPin, HIGH);
+  pinMode(backPingPin, INPUT);
+  backPingDuration = pulseIn(backPingPin, HIGH);
 
   // convert the time into a distance
-  pingInches = microsecondsToInches(pingDuration);
-
-  Serial.println(pingInches); 
+  backPingInches = microsecondsToInches(backPingDuration);
+  
 
   
+  //Throttle
+  /*-------------------------------------------------------------*/
   // read throttle pedal
   throttleValue = analogRead(throttleInputPin);
   // apply the calibration to the sensor reading
@@ -115,25 +126,33 @@ void loop() {
   throttleValue = constrain(throttleValue, 0, 255);
 
 
-  //Resolve direction and collision sensors 
-  // Need to handle reverse... 
-  if(throttleValue > 80 && pingInches > 2) 
-  {
-    MoveForward = true; 
+  //Direction Sensors
+  /*-------------------------------------------------------------*/
+  // read left hall sensor
+  if(digitalRead(leftDigitalHallPin)){
+    leftMotorAdjust = .5; 
+    digitalWrite(buzzerPin, HIGH); 
   } else {
-    
-    MoveForward = false; 
+    leftMotorAdjust = 1; 
+    digitalWrite(buzzerPin, LOW); 
   }
+
+
+  //Motor Control 
+  /*-------------------------------------------------------------*/
+
+  // Evaluate saftey sensors
+  IsMoving = (throttleValue > 50 && backPingInches > 4); 
   
   
   // Apply direction var to motor control
-  if(MoveForward) {
+  if(IsMoving) {
     
     // set forward speed
-    leftMotorForwardSpeed   = throttleValue;
+    leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
     leftMotorReverseSpeed   = 0; 
     
-    rightMotorForwardSpeed  = throttleValue;
+    rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
     rightMotorReverseSpeed  = 0; 
 
     // enable motors

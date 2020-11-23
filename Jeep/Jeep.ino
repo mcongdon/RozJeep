@@ -7,10 +7,11 @@
 
 // pin definitions
 int throttleInputPin    = A0;     // input pin for throttle pedal
-int leftAnalogHallPin   = A1;
-int leftDigitalHallPin  = 7;
-int backPingPin         = 12;               // input pin for back ping (collision detection)
 
+
+int relayPin        = 11;               // input pin for back ping (collision detection)
+int pingPin         = 12;               // input pin for back ping (collision detection)
+//int buzzerPin     = 53; 
 
 int leftMotorForwardIndicatorPin = 22;      // Left Motor is going forward indicator
 int leftMotorReverseIndicatorPin = 23;      // Left Motor is going reverse indicator
@@ -26,9 +27,6 @@ int rightMotorReverseOutputPin    = 29;      // Tell Right Motor to go reverse p
 int rightMotorForwardSpeedPin     = 9;       // pwm output right motor Forward Speed
 int rightMotorReverseSpeedPin     = 10;       // pwm output right motor Reverse
 
-
-int ledPin        = 13;     // LED on Arduino Board
-int buzzerPin     = 53; 
 
 // throttle calibration
 int throttleValue   = 0;
@@ -53,10 +51,8 @@ void setup() {
    
   //Init sensor pins
   pinMode(throttleInputPin, INPUT);
-  pinMode(backPingPin, INPUT);
-  pinMode(leftAnalogHallPin, INPUT);
-  pinMode(leftDigitalHallPin, INPUT);
-
+  pinMode(pingPin, INPUT);
+  pinMode(relayPin, OUTPUT);
   
   //Init motor pins    
   pinMode(leftMotorForwardIndicatorPin, INPUT);
@@ -88,7 +84,10 @@ void setup() {
   // calibrate min throttle pedal
   throttleValue = analogRead(throttleInputPin);
   throttleMin = throttleValue + 10; 
-    
+
+  // turn on power to dashboard 
+  digitalWrite(relayPin, HIGH); 
+  
 }
 
 void loop() {
@@ -97,22 +96,22 @@ void loop() {
   /*-------------------------------------------------------------*/
   // The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
   // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-  long backPingDuration, backPingInches;
-  pinMode(backPingPin, OUTPUT);
-  digitalWrite(backPingPin, LOW);
+  long pingDuration, pingInches;
+  pinMode(pingPin, OUTPUT);
+  digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
-  digitalWrite(backPingPin, HIGH);
+  digitalWrite(pingPin, HIGH);
   delayMicroseconds(5);
-  digitalWrite(backPingPin, LOW);
+  digitalWrite(pingPin, LOW);
 
   // The same pin is used to read the signal from the PING))): a HIGH pulse
   // whose duration is the time (in microseconds) from the sending of the ping
   // to the reception of its echo off of an object.
-  pinMode(backPingPin, INPUT);
-  backPingDuration = pulseIn(backPingPin, HIGH);
+  pinMode(pingPin, INPUT);
+  pingDuration = pulseIn(pingPin, HIGH);
 
   // convert the time into a distance
-  backPingInches = microsecondsToInches(backPingDuration);
+  pingInches = microsecondsToInches(pingDuration);
   
 
   
@@ -129,6 +128,8 @@ void loop() {
   //Direction Sensors
   /*-------------------------------------------------------------*/
   // read left hall sensor
+  
+  /*
   if(digitalRead(leftDigitalHallPin)){
     leftMotorAdjust = .5; 
     digitalWrite(buzzerPin, HIGH); 
@@ -136,13 +137,14 @@ void loop() {
     leftMotorAdjust = 1; 
     digitalWrite(buzzerPin, LOW); 
   }
-
+  */
 
   //Motor Control 
   /*-------------------------------------------------------------*/
 
   // Evaluate saftey sensors
-  IsMoving = (throttleValue > 50 && backPingInches > 4); 
+  // && pingInches > 4
+  IsMoving = (throttleValue > 50); 
   
   
   // Apply direction var to motor control

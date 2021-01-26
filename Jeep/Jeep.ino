@@ -12,19 +12,19 @@ int throttleInputPin    = A0;     // input pin for throttle pedal
 int relayPin          = 11;               // output pin for aux power relay 
 int sensorPin         = 12;               // input pin for sensor board
 
-int leftMotorForwardIndicatorPin = 22;      // Left Motor is going forward indicator
-int leftMotorReverseIndicatorPin = 23;      // Left Motor is going reverse indicator
-int leftMotorForwardOutputPin    = 24;      // Tell Left Motor to go forward pin
-int leftMotorReverseOutputPin    = 25;      // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin     = 5;       // pwm output left motor Forward Speed
-int leftMotorReverseSpeedPin     = 6;       // pwm output left motor Reverse
+int leftMotorForwardIndicatorPin = 26;      // Left Motor is going forward indicator
+int leftMotorReverseIndicatorPin = 27;      // Left Motor is going reverse indicator
+int leftMotorForwardOutputPin    = 28;      // Tell Left Motor to go forward pin
+int leftMotorReverseOutputPin    = 29;      // Tell Left Motor to go reverse pin
+int leftMotorForwardSpeedPin     = 10;       // pwm output left motor Forward Speed
+int leftMotorReverseSpeedPin     = 9;       // pwm output left motor Reverse
 
-int rightMotorForwardIndicatorPin = 26;      // Right Motor is going forward indicator
-int rightMotorReverseIndicatorPin = 27;      // Right Motor is going reverse indicator
-int rightMotorForwardOutputPin    = 28;      // Tell Right Motor to go forward pin
-int rightMotorReverseOutputPin    = 29;      // Tell Right Motor to go reverse pin
-int rightMotorForwardSpeedPin     = 9;       // pwm output right motor Forward Speed
-int rightMotorReverseSpeedPin     = 10;       // pwm output right motor Reverse
+int rightMotorForwardIndicatorPin = 22;      // Right Motor is going forward indicator
+int rightMotorReverseIndicatorPin = 23;      // Right Motor is going reverse indicator
+int rightMotorForwardOutputPin    = 24;      // Tell Right Motor to go forward pin
+int rightMotorReverseOutputPin    = 25;      // Tell Right Motor to go reverse pin
+int rightMotorForwardSpeedPin     = 6;       // pwm output right motor Forward Speed
+int rightMotorReverseSpeedPin     = 5;       // pwm output right motor Reverse
 
 
 // throttle calibration
@@ -137,9 +137,9 @@ void loop() {
 
     // enable motors
     digitalWrite(leftMotorForwardOutputPin, HIGH); 
-    digitalWrite(leftMotorReverseOutputPin, LOW);   
+    digitalWrite(leftMotorReverseOutputPin, HIGH);   
     digitalWrite(rightMotorForwardOutputPin, HIGH); 
-    digitalWrite(rightMotorReverseOutputPin, LOW);   
+    digitalWrite(rightMotorReverseOutputPin, HIGH);   
     
   } else {
     // apply brakes 

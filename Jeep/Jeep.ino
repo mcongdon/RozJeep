@@ -115,33 +115,22 @@ void loop() {
   
   // add saftey sensors here. 
 
-  SafteyPass = !digitalRead(safteyInputPin); 
-  IsMoving = (throttleValue > 50 && SafteyPass); 
+  //SafteyPass = digitalRead(safteyInputPin); 
+  IsMoving = (throttleValue > 50); 
+
+
+  // enable motors dunno why but you have to turn both pins on all the time and control forward and reverse with the pwm. 
+  // TODO: disable if saftey issue
+  digitalWrite(leftMotorForwardOutputPin, HIGH); 
+  digitalWrite(leftMotorReverseOutputPin, HIGH);   
+  digitalWrite(rightMotorForwardOutputPin, HIGH); 
+  digitalWrite(rightMotorReverseOutputPin, HIGH);      
   
 
 
-
-  //If not moving disable motors 
-  /*-------------------------------------------------------------*/
     
-  if(!IsMoving) {
+  if(IsMoving) {
     
-    // apply brakes 
-    leftMotorForwardSpeed = 0;
-    leftMotorReverseSpeed = 0; 
-    rightMotorForwardSpeed = 0;
-    rightMotorReverseSpeed = 0; 
-    
-    // shut off motors
-    digitalWrite(leftMotorForwardOutputPin, LOW); 
-    digitalWrite(leftMotorReverseOutputPin, LOW);   
-    digitalWrite(rightMotorForwardOutputPin, LOW); 
-    digitalWrite(rightMotorReverseOutputPin, LOW);    
-
-
-
-  } else {
-
     //Direction Sensors
     /*-------------------------------------------------------------*/
 
@@ -161,19 +150,9 @@ void loop() {
 
     //Motor Control 
     /*-------------------------------------------------------------*/
-
-    // enable motors dunno why but you have to turn both pins on all the time and control forward and reverse with the pwm. 
-    digitalWrite(leftMotorForwardOutputPin, HIGH); 
-    digitalWrite(leftMotorReverseOutputPin, HIGH);   
-    digitalWrite(rightMotorForwardOutputPin, HIGH); 
-    digitalWrite(rightMotorReverseOutputPin, HIGH);       
-
-
-    // if the (poorly named) reverse switch is active jeep is moving forward
-    bool IsMovingForward = digitalRead(reversePin); 
     
-    // set forward speed
-    if (IsMovingForward){
+    // if the (poorly named) reverse switch is active jeep is moving forward
+    if (digitalRead(reversePin)){
       
       leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
       leftMotorReverseSpeed   = 0; 
@@ -189,6 +168,14 @@ void loop() {
       rightMotorReverseSpeed  = (throttleValue * rightMotorAdjust);
       rightMotorForwardSpeed  = 0; 
     }
+
+  } else {
+
+    // apply brakes 
+    leftMotorForwardSpeed = 0;
+    leftMotorReverseSpeed = 0; 
+    rightMotorForwardSpeed = 0;
+    rightMotorReverseSpeed = 0; 
   
   }
 

@@ -47,6 +47,7 @@ int rightMotorReverseSpeed    = 0;
 
 // initial state stopped
 bool IsMoving = false; 
+bool SafteyPass = false; 
 
 void setup() {
   
@@ -58,7 +59,7 @@ void setup() {
   pinMode(reversePin, INPUT);
   pinMode(rightWheelTurningPin, INPUT);
   pinMode(leftWheelTurningPin, INPUT);
-  
+  pinMode(safteyInputPin, INPUT);  
   pinMode(relayPin, OUTPUT);
   
   //Init motor pins    
@@ -113,7 +114,9 @@ void loop() {
   /*-------------------------------------------------------------*/
   
   // add saftey sensors here. 
-  IsMoving = (throttleValue > 50); 
+
+  SafteyPass = !digitalRead(safteyInputPin); 
+  IsMoving = (throttleValue > 50 && SafteyPass); 
   
 
 

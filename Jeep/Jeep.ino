@@ -15,7 +15,7 @@ int reversePin                  = 2;      // reverse switch pin
 int rightWheelTurningPin        = 3;      // pin for right (wheel) turning sensor if true turning left
 int leftWheelTurningPin         = 4;      // pin for left (wheel) turning sensor if true turning right
 
-int safteyInputPin              = 12;               // input pin for sensor board
+int safteyInputPin              = 50;               // input pin for sensor board
 
 int leftMotorForwardIndicatorPin = 26;      // Left Motor is going forward indicator
 int leftMotorReverseIndicatorPin = 27;      // Left Motor is going reverse indicator

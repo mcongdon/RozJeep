@@ -10,7 +10,12 @@ int throttleInputPin    = A0;     // input pin for throttle pedal
 
 
 int relayPin          = 11;               // output pin for aux power relay 
-int sensorPin         = 12;               // input pin for sensor board
+
+int reversePin                  = 2;      // reverse switch pin
+int rightWheelTurningPin        = 3;      // pin for right (wheel) turning sensor if true turning left
+int leftWheelTurningPin         = 4;      // pin for left (wheel) turning sensor if true turning right
+
+int safteyInputPin              = 12;               // input pin for sensor board
 
 int leftMotorForwardIndicatorPin = 26;      // Left Motor is going forward indicator
 int leftMotorReverseIndicatorPin = 27;      // Left Motor is going reverse indicator
@@ -50,7 +55,10 @@ void setup() {
    
   //Init sensor pins
   pinMode(throttleInputPin, INPUT);
-  pinMode(sensorPin, INPUT);
+  pinMode(reversePin, INPUT);
+  pinMode(rightWheelTurningPin, INPUT);
+  pinMode(leftWheelTurningPin, INPUT);
+  
   pinMode(relayPin, OUTPUT);
   
   //Init motor pins    
@@ -91,8 +99,6 @@ void setup() {
 
 void loop() {
 
-
-  
   //Throttle
   /*-------------------------------------------------------------*/
   // read throttle pedal
@@ -103,45 +109,20 @@ void loop() {
   throttleValue = constrain(throttleValue, 0, 255);
 
 
-  //Direction Sensors
+  //Saftey sensors
   /*-------------------------------------------------------------*/
-  // read left hall sensor
   
-  /*
-  if(digitalRead(leftDigitalHallPin)){
-    leftMotorAdjust = .5; 
-    digitalWrite(buzzerPin, HIGH); 
-  } else {
-    leftMotorAdjust = 1; 
-    digitalWrite(buzzerPin, LOW); 
-  }
-  */
-
-  //Motor Control 
-  /*-------------------------------------------------------------*/
-
-  // Evaluate saftey sensors
-  // && pingInches > 4
+  // add saftey sensors here. 
   IsMoving = (throttleValue > 50); 
   
-  
-  // Apply direction var to motor control
-  if(IsMoving) {
-    
-    // set forward speed
-    leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
-    leftMotorReverseSpeed   = 0; 
-    
-    rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
-    rightMotorReverseSpeed  = 0; 
 
-    // enable motors
-    digitalWrite(leftMotorForwardOutputPin, HIGH); 
-    digitalWrite(leftMotorReverseOutputPin, HIGH);   
-    digitalWrite(rightMotorForwardOutputPin, HIGH); 
-    digitalWrite(rightMotorReverseOutputPin, HIGH);   
+
+
+  //If not moving disable motors 
+  /*-------------------------------------------------------------*/
     
-  } else {
+  if(!IsMoving) {
+    
     // apply brakes 
     leftMotorForwardSpeed = 0;
     leftMotorReverseSpeed = 0; 
@@ -154,8 +135,60 @@ void loop() {
     digitalWrite(rightMotorForwardOutputPin, LOW); 
     digitalWrite(rightMotorReverseOutputPin, LOW);    
 
-  }
+
+
+  } else {
+
+    //Direction Sensors
+    /*-------------------------------------------------------------*/
+
+    // right wheel sensor active jeep is turning left when moving forward. 
+    if(digitalRead(rightWheelTurningPin)){
+      leftMotorAdjust = .7; 
+    } else {
+      leftMotorAdjust = 1; 
+    }
   
+    // left wheel sensor active jeep is turning right when moving forward. 
+    if(digitalRead(leftWheelTurningPin)){
+      rightMotorAdjust = .7; 
+    } else {
+      rightMotorAdjust = 1; 
+    }
+
+    //Motor Control 
+    /*-------------------------------------------------------------*/
+
+    // enable motors dunno why but you have to turn both pins on all the time and control forward and reverse with the pwm. 
+    digitalWrite(leftMotorForwardOutputPin, HIGH); 
+    digitalWrite(leftMotorReverseOutputPin, HIGH);   
+    digitalWrite(rightMotorForwardOutputPin, HIGH); 
+    digitalWrite(rightMotorReverseOutputPin, HIGH);       
+
+
+    // if the (poorly named) reverse switch is active jeep is moving forward
+    bool IsMovingForward = digitalRead(reversePin); 
+    
+    // set forward speed
+    if (IsMovingForward){
+      
+      leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
+      leftMotorReverseSpeed   = 0; 
+    
+      rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
+      rightMotorReverseSpeed  = 0; 
+    
+    // is moving backwards
+    } else {
+      leftMotorReverseSpeed   = (throttleValue * leftMotorAdjust);
+      leftMotorForwardSpeed   = 0; 
+    
+      rightMotorReverseSpeed  = (throttleValue * rightMotorAdjust);
+      rightMotorForwardSpeed  = 0; 
+    }
+  
+  }
+
   // apply speed
   analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
   analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);

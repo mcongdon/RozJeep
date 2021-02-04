@@ -166,7 +166,7 @@ void loop() {
     // ** exception should be created and handled for such an event, indicating credical mechanical failure 
     
     // if right wheel sensor active jeep is turning left. 
-    if(!digitalRead(rightWheelTurningPin)){
+    if(digitalRead(rightWheelTurningPin)){
 
       if(DebugMode){
         Serial.print("LEFT AND ");
@@ -181,7 +181,7 @@ void loop() {
     }
   
     // left wheel sensor active jeep is turning right. 
-    if(!digitalRead(leftWheelTurningPin)){
+    if(digitalRead(leftWheelTurningPin)){
        
        if(DebugMode){
         Serial.print("RIGHT AND ");
@@ -226,7 +226,17 @@ void loop() {
       rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
       rightMotorReverseSpeed  = 0; 
     }
-  
+    
+    if(DebugMode){    
+      Serial.println("************");
+      Serial.println("************");
+      Serial.println("RAW rightwheel : " + digitalRead(rightWheelTurningPin)); 
+      Serial.println("RAW leftwheel : " + digitalRead(leftWheelTurningPin));
+      Serial.println("RAW reverse : " + digitalRead(reversePin));  
+      Serial.println("************");
+      Serial.println("************");
+    }
+    
   } else { 
 
 

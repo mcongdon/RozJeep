@@ -9,19 +9,19 @@
 int throttleInputPin    = A0;     // input pin for throttle pedal
 
 
-int relayPin          = 11;               // output pin for aux power relay 
+int relayPin          = 11;                 // output pin for aux power relay 
 
-int reversePin                  = 2;      // reverse switch pin
-int rightWheelTurningPin        = 3;      // pin for right (wheel) turning sensor if true turning left
-int leftWheelTurningPin         = 4;      // pin for left (wheel) turning sensor if true turning right
+int reversePin                  = 2;        // reverse switch pin
+int rightWheelTurningPin        = 3;        // pin for right (wheel) turning sensor if true turning left
+int leftWheelTurningPin         = 4;        // pin for left (wheel) turning sensor if true turning right
 
-int safteyInputPin              = 50;               // input pin for sensor board
+int safteyInputPin              = 52;       // input pin for sensor board
 
 int leftMotorForwardIndicatorPin = 26;      // Left Motor is going forward indicator
 int leftMotorReverseIndicatorPin = 27;      // Left Motor is going reverse indicator
 int leftMotorForwardOutputPin    = 28;      // Tell Left Motor to go forward pin
 int leftMotorReverseOutputPin    = 29;      // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin     = 10;       // pwm output left motor Forward Speed
+int leftMotorForwardSpeedPin     = 10;      // pwm output left motor Forward Speed
 int leftMotorReverseSpeedPin     = 9;       // pwm output left motor Reverse
 
 int rightMotorForwardIndicatorPin = 22;      // Right Motor is going forward indicator
@@ -123,53 +123,61 @@ void loop() {
   /*-------------------------------------------------------------*/
   
   if(IsMoving) {
+
     
-    //Direction Sensors
+    // Resolve Direction Sensors
     /*-------------------------------------------------------------*/
-    // right wheel sensor active jeep is turning left when moving forward. 
+    // ** note the mechanical design prevents both right wheel sensor and left wheel sensor to both be true at the same time
+    // ** exception should be created and handled for such an event, indicating credical mechanical failure 
+    
+    // if right wheel sensor active jeep is turning left. 
     if(digitalRead(rightWheelTurningPin)){
+      
+      // is turning left - slow left motor 
       leftMotorAdjust = .7; 
+
     } else {
+      
+      // going straight   
       leftMotorAdjust = 1; 
     }
   
-    // left wheel sensor active jeep is turning right when moving forward. 
+    // left wheel sensor active jeep is turning right. 
     if(digitalRead(leftWheelTurningPin)){
+    
+      // is turning right - slow right motor 
       rightMotorAdjust = .7; 
+
     } else {
+      
+      // going straight 
       rightMotorAdjust = 1; 
     }
 
-    
-    // if the (poorly named) reverse switch is active jeep is moving forward
-    
-    /* removed to test reverse switch
-     *  
-     if (digitalRead(reversePin)){
+    // if reverse sensor active Jeep is moving backwards
+    if (digitalRead(reversePin)){
       
-      leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
-      leftMotorReverseSpeed   = 0; 
-    
-      rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
-      rightMotorReverseSpeed  = 0; 
-    
-    // is moving backwards
-    } else {
+      // is moving backwards    
       leftMotorReverseSpeed   = (throttleValue * leftMotorAdjust);
       leftMotorForwardSpeed   = 0; 
     
       rightMotorReverseSpeed  = (throttleValue * rightMotorAdjust);
       rightMotorForwardSpeed  = 0; 
-    }
-  
-  */
-    // test values for direction sensor- 
-    leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
-    leftMotorReverseSpeed   = 0; 
+
+   
+    } else {
+      // is moving forward
+      leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
+      leftMotorReverseSpeed   = 0; 
     
-    rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
-    rightMotorReverseSpeed  = 0; 
-    // remove above 
+      rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
+      rightMotorReverseSpeed  = 0; 
+    }
+
+
+
+    // Move Jeep
+    /*-------------------------------------------------------------*/
 
     // enable motors 
     digitalWrite(leftMotorForwardOutputPin, HIGH); 
@@ -188,23 +196,27 @@ void loop() {
     
     // if not IsMoving
     
-    // apply brakes 
+    // Stop Jeep
+    /*-------------------------------------------------------------*/
+
+    // zero speed values 
     leftMotorForwardSpeed = 0;
     leftMotorReverseSpeed = 0; 
     rightMotorForwardSpeed = 0;
     rightMotorReverseSpeed = 0; 
     
-    // enable motors 
+    // disable motors 
     digitalWrite(leftMotorForwardOutputPin, LOW); 
     digitalWrite(leftMotorReverseOutputPin, LOW);   
     digitalWrite(rightMotorForwardOutputPin, LOW); 
     digitalWrite(rightMotorReverseOutputPin, LOW);      
       
-    // apply speed
-    analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
-    analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
-    analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
-    analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
-  }
+    // stop motors 
+    analogWrite(leftMotorForwardSpeedPin, 0);
+    analogWrite(leftMotorReverseSpeedPin, 0);
+    analogWrite(rightMotorForwardSpeedPin, 0);
+    analogWrite(rightMotorReverseSpeedPin, 0);
   
-}
+  } // end IsMoving IF
+  
+}// loop 

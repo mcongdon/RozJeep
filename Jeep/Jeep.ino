@@ -21,15 +21,15 @@ int leftMotorForwardIndicatorPin = 26;      // Left Motor is going forward indic
 int leftMotorReverseIndicatorPin = 27;      // Left Motor is going reverse indicator
 int leftMotorForwardOutputPin    = 28;      // Tell Left Motor to go forward pin
 int leftMotorReverseOutputPin    = 29;      // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin     = 10;      // pwm output left motor Forward Speed
-int leftMotorReverseSpeedPin     = 9;       // pwm output left motor Reverse
+int leftMotorForwardSpeedPin     = 9;      // pwm output left motor Forward Speed
+int leftMotorReverseSpeedPin     = 10;       // pwm output left motor Reverse
 
 int rightMotorForwardIndicatorPin = 22;      // Right Motor is going forward indicator
 int rightMotorReverseIndicatorPin = 23;      // Right Motor is going reverse indicator
 int rightMotorForwardOutputPin    = 24;      // Tell Right Motor to go forward pin
 int rightMotorReverseOutputPin    = 25;      // Tell Right Motor to go reverse pin
-int rightMotorForwardSpeedPin     = 6;       // pwm output right motor Forward Speed
-int rightMotorReverseSpeedPin     = 5;       // pwm output right motor Reverse
+int rightMotorForwardSpeedPin     = 5;       // pwm output right motor Forward Speed
+int rightMotorReverseSpeedPin     = 6;       // pwm output right motor Reverse
 
 
 // throttle calibration
@@ -48,12 +48,16 @@ int rightMotorReverseSpeed    = 0;
 // initial state stopped
 bool IsMoving = false; 
 bool SafteyPass = false; 
+bool DebugMode = true; 
 
 void setup() {
   
   // open serial port connection
-  Serial.begin(9600); 
-   
+  if(DebugMode){
+    Serial.begin(9600);  
+    Serial.println("**STARTUP****");    
+  }
+  
   //Init sensor pins
   pinMode(throttleInputPin, INPUT);
   pinMode(reversePin, INPUT);
@@ -96,32 +100,41 @@ void setup() {
   // turn on power to dashboard 
   digitalWrite(relayPin, HIGH); 
   
+  if(DebugMode){
+    Serial.println("**STARTUP END****");    
+  } 
 }
 
 void loop() {
+
+  if(DebugMode){
+    Serial.println("**LOOP***");    
+  } 
+
 
   //Throttle
   /*-------------------------------------------------------------*/
   // read throttle pedal
   throttleValue = analogRead(throttleInputPin);
-  Serial.print("Throttle Value: ");
-  Serial.print(throttleValue);
-  Serial.print(",");
-
+  if(DebugMode){
+    Serial.print("Throttle Value: ");
+    Serial.print(throttleValue);
+    Serial.print(",");
+  }
   // apply the calibration to the sensor reading
   throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 255);
-
-  Serial.print("Throttle Value Map: ");
-  Serial.print(throttleValue);
-  Serial.print(",");
-
+  if(DebugMode){
+    Serial.print("Throttle Value Map: ");
+    Serial.print(throttleValue);
+    Serial.print(",");
+  }
   
   // in case the sensor value is outside the range seen during calibration
   throttleValue = constrain(throttleValue, 0, 255);
-
-  Serial.print("Throttle Value Constrain: ");
-  Serial.println(throttleValue);
-  
+  if(DebugMode){
+    Serial.print("Throttle Value Constrain: ");
+    Serial.println(throttleValue);
+  }  
 
   
   //Saftey sensors
@@ -145,39 +158,19 @@ void loop() {
   
   if(IsMoving) {
 
+    if(DebugMode){
+      Serial.print("Is Moving: ");
+    }  
 
-    // Resolve Direction Sensors
+    // Resolve Forward/Reverse
     /*-------------------------------------------------------------*/
-    // ** note the mechanical design prevents both right wheel sensor and left wheel sensor to both be true at the same time
-    // ** exception should be created and handled for such an event, indicating credical mechanical failure 
-    
-    // if right wheel sensor active jeep is turning left. 
-    if(digitalRead(rightWheelTurningPin)){
-      
-      // is turning left - slow left motor 
-      leftMotorAdjust = .7; 
-
-    } else {
-      
-      // going straight   
-      leftMotorAdjust = 1; 
-    }
-  
-    // left wheel sensor active jeep is turning right. 
-    if(digitalRead(leftWheelTurningPin)){
-    
-      // is turning right - slow right motor 
-      rightMotorAdjust = .7; 
-
-    } else {
-      
-      // going straight 
-      rightMotorAdjust = 1; 
-    }
-
     // if reverse sensor active Jeep is moving backwards
     if (digitalRead(reversePin)){
-      
+
+      if(DebugMode){
+        Serial.print("BACKWARDS ");
+      }  
+
       // is moving backwards    
       leftMotorReverseSpeed   = (throttleValue * leftMotorAdjust);
       leftMotorForwardSpeed   = 0; 
@@ -187,6 +180,11 @@ void loop() {
 
    
     } else {
+
+      if(DebugMode){
+        Serial.print("FORWARD ");
+      }  
+      
       // is moving forward
       leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
       leftMotorReverseSpeed   = 0; 
@@ -194,13 +192,56 @@ void loop() {
       rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
       rightMotorReverseSpeed  = 0; 
     }
+  
 
 
+    // Resolve Direction Sensors
+    /*-------------------------------------------------------------*/
+    // ** note the mechanical design prevents both right wheel sensor and left wheel sensor to both be true at the same time
+    // ** exception should be created and handled for such an event, indicating credical mechanical failure 
+    
+    // if right wheel sensor active jeep is turning left. 
+    if(digitalRead(rightWheelTurningPin)){
 
+      if(DebugMode){
+        Serial.println("AND LEFT ");
+      }        
+      // is turning left - slow left motor 
+      leftMotorAdjust = .7; 
+
+    } else {
+      
+      if(DebugMode){
+        Serial.println("AND STRAIGHT ");
+      }              
+      // going straight   
+      leftMotorAdjust = 1; 
+    }
+  
+    // left wheel sensor active jeep is turning right. 
+    if(digitalRead(leftWheelTurningPin)){
+       
+       if(DebugMode){
+        Serial.println("AND RIGHT ");
+      }                 
+      // is turning right - slow right motor 
+      rightMotorAdjust = .7; 
+
+    } else {
+      if(DebugMode){
+        Serial.println("AND STRAIGHT ");
+      }                 
+      // going straight 
+      rightMotorAdjust = 1; 
+    }
 
    
   } else { 
-    
+
+
+    if(DebugMode){
+      Serial.print("*** IS NOT MOVING *** ");
+    }  
     // if not IsMoving
     
     // Stop Jeep (gently)

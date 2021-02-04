@@ -52,7 +52,7 @@ bool SafteyPass = false;
 void setup() {
   
   // open serial port connection
-  //Serial.begin(9600); 
+  Serial.begin(9600); 
    
   //Init sensor pins
   pinMode(throttleInputPin, INPUT);
@@ -104,27 +104,48 @@ void loop() {
   /*-------------------------------------------------------------*/
   // read throttle pedal
   throttleValue = analogRead(throttleInputPin);
+  Serial.print("Throttle Value: ");
+  Serial.print(throttleValue);
+  Serial.print(",");
+
   // apply the calibration to the sensor reading
   throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 255);
+
+  Serial.print("Throttle Value Map: ");
+  Serial.print(throttleValue);
+  Serial.print(",");
+
+  
   // in case the sensor value is outside the range seen during calibration
   throttleValue = constrain(throttleValue, 0, 255);
 
+  Serial.print("Throttle Value Constrain: ");
+  Serial.println(throttleValue);
+  
 
+  
   //Saftey sensors
   /*-------------------------------------------------------------*/
   
   // add saftey sensors here. 
-
+  
+  // TODO need to filter for random interfance- SaftyPass == false will hard stop the Jeep- motors off. 
   //SafteyPass = digitalRead(safteyInputPin); 
-  IsMoving = (throttleValue > 50);   
+ 
+  SafteyPass = true; 
 
+  
+  // This needs to be more sophisticated...
+  // IsMoving = (throttleValue > 50);   
+  IsMoving = true;
 
+  
   //Motor Control - find speed value for each motor
   /*-------------------------------------------------------------*/
   
   if(IsMoving) {
 
-    
+
     // Resolve Direction Sensors
     /*-------------------------------------------------------------*/
     // ** note the mechanical design prevents both right wheel sensor and left wheel sensor to both be true at the same time
@@ -176,47 +197,50 @@ void loop() {
 
 
 
-    // Move Jeep
-    /*-------------------------------------------------------------*/
-
-    // enable motors 
-    digitalWrite(leftMotorForwardOutputPin, HIGH); 
-    digitalWrite(leftMotorReverseOutputPin, HIGH);   
-    digitalWrite(rightMotorForwardOutputPin, HIGH); 
-    digitalWrite(rightMotorReverseOutputPin, HIGH);      
-      
-    // apply speed
-    analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
-    analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
-    analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
-    analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
 
    
   } else { 
     
     // if not IsMoving
     
-    // Stop Jeep
+    // Stop Jeep (gently)
     /*-------------------------------------------------------------*/
-
+        
     // zero speed values 
     leftMotorForwardSpeed = 0;
     leftMotorReverseSpeed = 0; 
     rightMotorForwardSpeed = 0;
     rightMotorReverseSpeed = 0; 
     
+  
+  } // end IsMoving IF
+
+
+  // Move Jeep
+  /*-------------------------------------------------------------*/
+
+  if(SafteyPass){
+  
+    // enable motors 
+    digitalWrite(leftMotorForwardOutputPin, HIGH); 
+    digitalWrite(leftMotorReverseOutputPin, HIGH);   
+    digitalWrite(rightMotorForwardOutputPin, HIGH); 
+    digitalWrite(rightMotorReverseOutputPin, HIGH);          
+  } else {
+    
     // disable motors 
     digitalWrite(leftMotorForwardOutputPin, LOW); 
     digitalWrite(leftMotorReverseOutputPin, LOW);   
     digitalWrite(rightMotorForwardOutputPin, LOW); 
-    digitalWrite(rightMotorReverseOutputPin, LOW);      
-      
-    // stop motors 
-    analogWrite(leftMotorForwardSpeedPin, 0);
-    analogWrite(leftMotorReverseSpeedPin, 0);
-    analogWrite(rightMotorForwardSpeedPin, 0);
-    analogWrite(rightMotorReverseSpeedPin, 0);
-  
-  } // end IsMoving IF
+    digitalWrite(rightMotorReverseOutputPin, LOW);          
+  }
+
+    
+  // apply speed
+  analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
+  analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
+  analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
+  analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
+
   
 }// loop 

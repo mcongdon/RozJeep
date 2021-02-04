@@ -116,24 +116,16 @@ void loop() {
   // add saftey sensors here. 
 
   //SafteyPass = digitalRead(safteyInputPin); 
-  IsMoving = (throttleValue > 50); 
+  IsMoving = (throttleValue > 50);   
 
 
-  // enable motors dunno why but you have to turn both pins on all the time and control forward and reverse with the pwm. 
-  // TODO: disable if saftey issue
-  digitalWrite(leftMotorForwardOutputPin, HIGH); 
-  digitalWrite(leftMotorReverseOutputPin, HIGH);   
-  digitalWrite(rightMotorForwardOutputPin, HIGH); 
-  digitalWrite(rightMotorReverseOutputPin, HIGH);      
+  //Motor Control - find speed value for each motor
+  /*-------------------------------------------------------------*/
   
-
-
-    
   if(IsMoving) {
     
     //Direction Sensors
     /*-------------------------------------------------------------*/
-
     // right wheel sensor active jeep is turning left when moving forward. 
     if(digitalRead(rightWheelTurningPin)){
       leftMotorAdjust = .7; 
@@ -148,11 +140,12 @@ void loop() {
       rightMotorAdjust = 1; 
     }
 
-    //Motor Control 
-    /*-------------------------------------------------------------*/
     
     // if the (poorly named) reverse switch is active jeep is moving forward
-    if (digitalRead(reversePin)){
+    
+    /* removed to test reverse switch
+     *  
+     if (digitalRead(reversePin)){
       
       leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
       leftMotorReverseSpeed   = 0; 
@@ -168,21 +161,50 @@ void loop() {
       rightMotorReverseSpeed  = (throttleValue * rightMotorAdjust);
       rightMotorForwardSpeed  = 0; 
     }
+  
+  */
+    // test values for direction sensor- 
+    leftMotorForwardSpeed   = (throttleValue * leftMotorAdjust);
+    leftMotorReverseSpeed   = 0; 
+    
+    rightMotorForwardSpeed  = (throttleValue * rightMotorAdjust);
+    rightMotorReverseSpeed  = 0; 
+    // remove above 
 
-  } else {
+    // enable motors 
+    digitalWrite(leftMotorForwardOutputPin, HIGH); 
+    digitalWrite(leftMotorReverseOutputPin, HIGH);   
+    digitalWrite(rightMotorForwardOutputPin, HIGH); 
+    digitalWrite(rightMotorReverseOutputPin, HIGH);      
+      
+    // apply speed
+    analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
+    analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
+    analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
+    analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
 
+   
+  } else { 
+    
+    // if not IsMoving
+    
     // apply brakes 
     leftMotorForwardSpeed = 0;
     leftMotorReverseSpeed = 0; 
     rightMotorForwardSpeed = 0;
     rightMotorReverseSpeed = 0; 
-  
-  }
-
-  // apply speed
-  analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
-  analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
-  analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
-  analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
     
+    // enable motors 
+    digitalWrite(leftMotorForwardOutputPin, LOW); 
+    digitalWrite(leftMotorReverseOutputPin, LOW);   
+    digitalWrite(rightMotorForwardOutputPin, LOW); 
+    digitalWrite(rightMotorReverseOutputPin, LOW);      
+      
+    // apply speed
+    analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
+    analogWrite(leftMotorReverseSpeedPin, leftMotorReverseSpeed);
+    analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
+    analogWrite(rightMotorReverseSpeedPin, rightMotorReverseSpeed);
+  }
+  
 }

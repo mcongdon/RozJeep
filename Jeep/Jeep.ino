@@ -17,18 +17,18 @@ int leftWheelTurningPin         = 4;        // pin for left (wheel) turning sens
 
 int safteyInputPin              = 52;       // input pin for sensor board
 
-int leftMotorForwardIndicatorPin = 26;      // Left Motor is going forward indicator
-int leftMotorBackwardsIndicatorPin = 27;      // Left Motor is going reverse indicator
-int leftMotorForwardOutputPin    = 28;      // Tell Left Motor to go forward pin
-int leftMotorBackwardsOutputPin    = 29;      // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin     = 9;      // pwm output left motor Forward Speed
-int leftMotorBackwardsSpeedPin     = 10;       // pwm output left motor Reverse
+int leftMotorForwardIndicatorPin    = 26;      // Left Motor is going forward indicator
+int leftMotorBackwardsIndicatorPin  = 27;      // Left Motor is going reverse indicator
+int leftMotorForwardOutputPin       = 28;      // Tell Left Motor to go forward pin
+int leftMotorBackwardsOutputPin     = 29;      // Tell Left Motor to go reverse pin
+int leftMotorForwardSpeedPin        = 9;        // pwm output left motor Forward Speed
+int leftMotorBackwardsSpeedPin      = 10;       // pwm output left motor Reverse
 
-int rightMotorForwardIndicatorPin = 22;      // Right Motor is going forward indicator
+int rightMotorForwardIndicatorPin   = 22;      // Right Motor is going forward indicator
 int rightMotorBackwardsIndicatorPin = 23;      // Right Motor is going reverse indicator
-int rightMotorForwardOutputPin    = 24;      // Tell Right Motor to go forward pin
+int rightMotorForwardOutputPin      = 24;      // Tell Right Motor to go forward pin
 int rightMotorBackwardsOutputPin    = 25;      // Tell Right Motor to go reverse pin
-int rightMotorForwardSpeedPin     = 5;       // pwm output right motor Forward Speed
+int rightMotorForwardSpeedPin       = 5;       // pwm output right motor Forward Speed
 int rightMotorBackwardsSpeedPin     = 6;       // pwm output right motor Reverse
 
 
@@ -45,7 +45,11 @@ int leftMotorBackwardsSpeed     = 0;
 int rightMotorForwardSpeed    = 0; 
 int rightMotorBackwardsSpeed    = 0; 
 
-int SpeedDeltaThreshold = 50;
+int SpeedDeltaThreshold = 40;
+
+const int numThrottleReadings = 5;
+int throttleReadings[numThrottleReadings];      // the readings from the analog input
+int throttleReadIndex = 0;              // the index of the current reading
 
 
 // initial state stopped
@@ -101,9 +105,15 @@ void setup() {
   analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
   analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed);
 
+  // init throttle read buffer array
+  for (int i = 0; i < numThrottleReadings; i++) {
+    throttleReadings[i] = 0;
+  }
+  
   // calibrate min throttle pedal
   throttleValue = analogRead(throttleInputPin);
   throttleMin = throttleValue + 10; 
+
 
   // turn on power to dashboard 
   digitalWrite(relayPin, HIGH); 
@@ -114,8 +124,22 @@ void loop() {
 
   //Throttle
   /*-------------------------------------------------------------*/
-  // read throttle pedal
-  throttleValue = analogRead(throttleInputPin);
+  // read throttle pedal store in buffer array
+  throttleReadings[throttleReadIndex] = analogRead(throttleInputPin); 
+  
+  // enum read index
+  if (throttleReadIndex < numThrottleReadings){
+    throttleReadIndex++; 
+  } else {
+    throttleReadIndex = 0; 
+  }
+  int throttleTotal = 0; 
+
+  for(int i = 0; i < numThrottleReadings; i++){
+    throttleTotal += throttleReadings[i];
+  }
+  
+  throttleValue = throttleTotal / numThrottleReadings; 
   
   // if current throttle reading is less than min reset min. 
   //if(throttleMin > trottleValue ){    
@@ -328,7 +352,7 @@ bool resolveIsMovingBackwardsState(){
   if(!IsMoving) {return false;}
 
   // if reverse pin 
-  if(!digitalRead(backwardsPin)){
+  if(digitalRead(backwardsPin)){
     return true;
   }   
 

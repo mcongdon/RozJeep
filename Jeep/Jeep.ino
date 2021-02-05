@@ -362,10 +362,10 @@ bool resolveIsMovingBackwardsState(){
 bool resolveIsTurningRightState(){
   if(!IsMoving) {return false;} 
   
-  if(!digitalRead(leftWheelTurningPin) && digitalRead(rightWheelTurningPin)){
-    rightMotorAdjust = .7; 
-    return true;
-  }
+  //if(!digitalRead(leftWheelTurningPin) && digitalRead(rightWheelTurningPin)){
+    //rightMotorAdjust = .7; 
+    //return true;
+  //}
   
   rightMotorAdjust = 1; 
   return false;
@@ -374,10 +374,10 @@ bool resolveIsTurningRightState(){
 bool resolveIsTurningLeftState(){
   if(!IsMoving) {return false;}
   
-  if(!digitalRead(rightWheelTurningPin) && digitalRead(leftWheelTurningPin)){
-    leftMotorAdjust = .7;
-    return true; 
-  }
+  //if(!digitalRead(rightWheelTurningPin) && digitalRead(leftWheelTurningPin)){
+    //leftMotorAdjust = .7;
+    //return true; 
+  //}
   
   leftMotorAdjust = 1; 
   return false;    

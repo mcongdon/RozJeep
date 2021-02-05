@@ -127,10 +127,10 @@ void loop() {
   int throttleReading = analogRead(throttleInputPin);
   
   // apply the calibration to the sensor reading
-  throttleReading = map(throttleValue, throttleMin, throttleMax, 0, 255);
+  throttleReading = map(throttleReading, throttleMin, throttleMax, 0, 255);
   
   // in case the sensor value is outside the range seen during calibration
-  throttleReading = constrain(throttleValue, 0, 255);
+  throttleReading = constrain(throttleReading, 0, 255);
   
   // read throttle pedal store in buffer array
   throttleReadings[throttleReadIndex] = throttleReading; 

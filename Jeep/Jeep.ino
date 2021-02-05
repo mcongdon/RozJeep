@@ -45,9 +45,9 @@ int leftMotorBackwardsSpeed     = 0;
 int rightMotorForwardSpeed    = 0; 
 int rightMotorBackwardsSpeed    = 0; 
 
-int SpeedDeltaThreshold = 40;
+int SpeedDeltaThreshold = 30;
 
-const int numThrottleReadings = 5;
+const int numThrottleReadings = 10;
 int throttleReadings[numThrottleReadings];      // the readings from the analog input
 int throttleReadIndex = 0;              // the index of the current reading
 

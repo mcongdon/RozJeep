@@ -124,8 +124,16 @@ void loop() {
 
   //Throttle
   /*-------------------------------------------------------------*/
+  int throttleReading = analogRead(throttleInputPin);
+  
+  // apply the calibration to the sensor reading
+  throttleReading = map(throttleValue, throttleMin, throttleMax, 0, 255);
+  
+  // in case the sensor value is outside the range seen during calibration
+  throttleReading = constrain(throttleValue, 0, 255);
+  
   // read throttle pedal store in buffer array
-  throttleReadings[throttleReadIndex] = analogRead(throttleInputPin); 
+  throttleReadings[throttleReadIndex] = throttleReading; 
   
   // enum read index
   if (throttleReadIndex < numThrottleReadings){
@@ -140,19 +148,9 @@ void loop() {
   }
   
   throttleValue = throttleTotal / numThrottleReadings; 
+    
   
-  // if current throttle reading is less than min reset min. 
-  //if(throttleMin > trottleValue ){    
-   // throttleMin = throttleValue; 
-  //}
-  
-  // apply the calibration to the sensor reading
-  throttleValue = map(throttleValue, throttleMin, throttleMax, 0, 255);
-  
-  // in case the sensor value is outside the range seen during calibration
-  throttleValue = constrain(throttleValue, 0, 255);
- 
-  
+
   //Saftey sensors
   /*-------------------------------------------------------------*/
   
@@ -171,10 +169,10 @@ void loop() {
   IsTurningLeft       = resolveIsTurningLeftState(); 
 
   // resolve speed and directions 
-  leftMotorForwardSpeed     = resolveLeftMotorForwardSpeed(); 
-  leftMotorBackwardsSpeed   = resolveLeftMotorBackwardsSpeed();
-  rightMotorForwardSpeed    = resolveRightMotorForwardSpeed();
-  rightMotorBackwardsSpeed  = resolveRightMotorBackwardsSpeed();
+  leftMotorForwardSpeed     = resolveLeftMotorForwardSpeed(throttleValue); 
+  leftMotorBackwardsSpeed   = resolveLeftMotorBackwardsSpeed(throttleValue);
+  rightMotorForwardSpeed    = resolveRightMotorForwardSpeed(throttleValue);
+  rightMotorBackwardsSpeed  = resolveRightMotorBackwardsSpeed(throttleValue);
 
   // Saftey Check
   /*-------------------------------------------------------------*/
@@ -228,12 +226,12 @@ void loop() {
 }// loop 
 
 
-int resolveLeftMotorForwardSpeed()
+int resolveLeftMotorForwardSpeed(int throttle)
 {
   if(IsMovingForward)
   {
     if(leftMotorBackwardsSpeed == 0){
-      int newSpeed = int(throttleValue * leftMotorAdjust); 
+      int newSpeed = int(throttle * leftMotorAdjust); 
       return  easeThrottleChange(leftMotorForwardSpeed, newSpeed);
     } else {
      // wait for reverse speed to get to zero
@@ -250,12 +248,12 @@ int resolveLeftMotorForwardSpeed()
 }     
 
 
-int resolveLeftMotorBackwardsSpeed()
+int resolveLeftMotorBackwardsSpeed(int throttle)
 {  
   if(IsMovingBackwards)
   {
       if(leftMotorForwardSpeed == 0){
-        int newSpeed = int(throttleValue * leftMotorAdjust); 
+        int newSpeed = int(throttle * leftMotorAdjust); 
         return  easeThrottleChange(leftMotorBackwardsSpeed, newSpeed);
       } else {
         // wait for forward speed to get to zero 
@@ -270,12 +268,12 @@ int resolveLeftMotorBackwardsSpeed()
     return 0;
 }
 
-int resolveRightMotorForwardSpeed()
+int resolveRightMotorForwardSpeed(int throttle)
 {
   if(IsMovingForward)
   {
     if(rightMotorBackwardsSpeed == 0){
-      int newSpeed = int(throttleValue * rightMotorAdjust); 
+      int newSpeed = int(throttle * rightMotorAdjust); 
       return  easeThrottleChange(rightMotorForwardSpeed, newSpeed);
     } else {
      // wait for reverse speed to get to zero
@@ -291,12 +289,12 @@ int resolveRightMotorForwardSpeed()
   return 0; 
 }
 
-int resolveRightMotorBackwardsSpeed()
+int resolveRightMotorBackwardsSpeed(int throttle)
 {
     if(IsMovingBackwards)
   {
       if(rightMotorForwardSpeed == 0){
-        int newSpeed = int(throttleValue * rightMotorAdjust); 
+        int newSpeed = int(throttle * rightMotorAdjust); 
         return  easeThrottleChange(rightMotorBackwardsSpeed, newSpeed);
       } else {
         // wait for forward speed to get to zero 

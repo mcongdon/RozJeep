@@ -6,8 +6,11 @@
  */
 
 // pin definitions
-int throttleInputPin    = A0;     // input pin for throttle pedal
+int throttleInputPin    = A0;    // input pin for throttle pedal
 
+int remote1InputPin    = A1;     // Channel 1 on RC Transmitter (steering)
+int remote2InputPin    = A2;     // Channel 2 on RC Transmitter (throttle)
+int remote3InputPin    = A3;     // Channel 3 on RC Transmitter (???)
 
 int relayPin          = 11;                 // output pin for aux power relay 
 
@@ -72,6 +75,11 @@ void setup() {
   
   //Init sensor pins
   pinMode(throttleInputPin, INPUT);
+
+  pinMode(remote1InputPin, INPUT);
+  pinMode(remote2InputPin, INPUT);
+  pinMode(remote3InputPin, INPUT);
+  
   pinMode(backwardsPin, INPUT);
   pinMode(rightWheelTurningPin, INPUT);
   pinMode(leftWheelTurningPin, INPUT);
@@ -122,35 +130,22 @@ void setup() {
 
 void loop() {
 
-  //Throttle
-  /*-------------------------------------------------------------*/
-  int throttleReading = analogRead(throttleInputPin);
-  
-  // apply the calibration to the sensor reading
-  throttleReading = map(throttleReading, throttleMin, throttleMax, 0, 255);
-  
-  // in case the sensor value is outside the range seen during calibration
-  throttleReading = constrain(throttleReading, 0, 255);
-  
-  // read throttle pedal store in buffer array
-  throttleReadings[throttleReadIndex] = throttleReading; 
-  
-  // enum read index
-  if (throttleReadIndex < numThrottleReadings){
-    throttleReadIndex++; 
-  } else {
-    throttleReadIndex = 0; 
-  }
-  int throttleTotal = 0; 
+  // get Throttle Data
+  throttleValue = getThrottleValue(); 
+   
+  // resolve direction 
+  IsMoving            = resolveIsMovingState();
+  IsMovingForward     = resolveIsMovingForwardState(); 
+  IsMovingBackwards   = resolveIsMovingBackwardsState(); 
+  IsTurningRight      = resolveIsTurningRightState(); 
+  IsTurningLeft       = resolveIsTurningLeftState(); 
 
-  for(int i = 0; i < numThrottleReadings; i++){
-    throttleTotal += throttleReadings[i];
-  }
+  // Get motor speeds based on direction. 
+  leftMotorForwardSpeed     = getLeftMotorForwardSpeed(throttleValue); 
+  leftMotorBackwardsSpeed   = getLeftMotorBackwardsSpeed(throttleValue);
+  rightMotorForwardSpeed    = getRightMotorForwardSpeed(throttleValue);
+  rightMotorBackwardsSpeed  = getRightMotorBackwardsSpeed(throttleValue);
   
-  throttleValue = throttleTotal / numThrottleReadings; 
-    
-  
-
   //Saftey sensors
   /*-------------------------------------------------------------*/
   
@@ -159,23 +154,10 @@ void loop() {
   // TODO need to filter for random interfance- SaftyPass == false will hard stop the Jeep- motors off. 
   //SafteyPass = digitalRead(safteyInputPin); 
  
+  // so much saftey... 
   SafteyPass = true;   
+
   
-  // resolve direction states
-  IsMoving            = resolveIsMovingState();
-  IsMovingForward     = resolveIsMovingForwardState(); 
-  IsMovingBackwards   = resolveIsMovingBackwardsState(); 
-  IsTurningRight      = resolveIsTurningRightState(); 
-  IsTurningLeft       = resolveIsTurningLeftState(); 
-
-  // resolve speed and directions 
-  leftMotorForwardSpeed     = resolveLeftMotorForwardSpeed(throttleValue); 
-  leftMotorBackwardsSpeed   = resolveLeftMotorBackwardsSpeed(throttleValue);
-  rightMotorForwardSpeed    = resolveRightMotorForwardSpeed(throttleValue);
-  rightMotorBackwardsSpeed  = resolveRightMotorBackwardsSpeed(throttleValue);
-
-  // Saftey Check
-  /*-------------------------------------------------------------*/
   if(!SafteyPass){
     
     // error log 
@@ -226,7 +208,80 @@ void loop() {
 }// loop 
 
 
-int resolveLeftMotorForwardSpeed(int throttle)
+
+
+
+// Get Throttle Reading
+/*-------------------------------------------------------------*/
+int getThrottleReading()
+{
+  int throttleReading = 0; 
+  
+  if(analogRead(remote2InputPin) >= 2){
+   
+   //Remote Override
+   /*-------------------------------------------------------------*/    
+    throttleReading = analogRead(remote2InputPin); 
+    throttleReading = map(throttleReading, 2, 3, 0, 255);
+    
+  } else {
+
+   //Throttle Pedal 
+   /*-------------------------------------------------------------*/
+    throttleReading = analogRead(throttleInputPin);
+    throttleReading = map(throttleReading, throttleMin, throttleMax, 0, 255);
+
+  }
+
+  throttleReading = constrain(throttleReading, 0, 255);  
+  
+  return throttleReading;
+}
+
+
+// Get Throttle Value
+/*-------------------------------------------------------------*/
+int getThrottleValue()
+{ 
+  // read throttle store in buffer array
+  throttleReadings[throttleReadIndex] = getThrottleReading(); 
+  
+  // enum read index
+  if (throttleReadIndex < numThrottleReadings){
+    throttleReadIndex++; 
+  } else {
+    throttleReadIndex = 0; 
+  }
+  int throttleTotal = 0; 
+
+  for(int i = 0; i < numThrottleReadings; i++){
+    throttleTotal += throttleReadings[i];
+  }
+  
+  return throttleTotal / numThrottleReadings;    
+}
+
+
+// Ease Throttle Change 
+/*-------------------------------------------------------------*/
+int easeThrottleChange(int oldSpeed, int newSpeed){
+    
+    if (abs(oldSpeed - newSpeed) > SpeedDeltaThreshold) 
+    {
+       if(oldSpeed > newSpeed) {
+        return (oldSpeed - SpeedDeltaThreshold); 
+       } else if (newSpeed > oldSpeed){
+        return (oldSpeed + SpeedDeltaThreshold); 
+       }
+    } 
+
+    return newSpeed;
+}
+
+
+// Get Left Motor Speed
+/*-------------------------------------------------------------*/
+int getLeftMotorForwardSpeed(int throttle)
 {
   if(IsMovingForward)
   {
@@ -248,7 +303,9 @@ int resolveLeftMotorForwardSpeed(int throttle)
 }     
 
 
-int resolveLeftMotorBackwardsSpeed(int throttle)
+// Get Left Motor Backwards Speed 
+/*-------------------------------------------------------------*/
+int getLeftMotorBackwardsSpeed(int throttle)
 {  
   if(IsMovingBackwards)
   {
@@ -268,7 +325,10 @@ int resolveLeftMotorBackwardsSpeed(int throttle)
     return 0;
 }
 
-int resolveRightMotorForwardSpeed(int throttle)
+
+// Get Right Motor Forward Speed 
+/*-------------------------------------------------------------*/
+int getRightMotorForwardSpeed(int throttle)
 {
   if(IsMovingForward)
   {
@@ -289,7 +349,9 @@ int resolveRightMotorForwardSpeed(int throttle)
   return 0; 
 }
 
-int resolveRightMotorBackwardsSpeed(int throttle)
+// Get Right Motor Backward Speed 
+/*-------------------------------------------------------------*/
+int getRightMotorBackwardsSpeed(int throttle)
 {
     if(IsMovingBackwards)
   {
@@ -311,28 +373,12 @@ int resolveRightMotorBackwardsSpeed(int throttle)
 }
 
 
-
-int easeThrottleChange(int oldSpeed, int newSpeed){
-    
-    if (abs(oldSpeed - newSpeed) > SpeedDeltaThreshold) 
-    {
-       if(oldSpeed > newSpeed) {
-        return (oldSpeed - SpeedDeltaThreshold); 
-       } else if (newSpeed > oldSpeed){
-        return (oldSpeed + SpeedDeltaThreshold); 
-       }
-    } 
-
-    return newSpeed;
-}
-
-
+// Resolve Directions Moving 
+/*-------------------------------------------------------------*/
 bool resolveIsMovingState(){
    
-  // This needs to be more sophisticated...
-  // IsMoving = (throttleValue > 50);   
-   // do throttle test here    
-   return true; 
+  // This needs to be more sophisticated?  
+   return (throttleValue > 20); 
 }
 
 bool resolveIsMovingForwardState(){

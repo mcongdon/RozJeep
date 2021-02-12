@@ -215,17 +215,16 @@ void loop() {
 /*-------------------------------------------------------------*/
 int getThrottleReading()
 {
-  
-  Serial.println("Remote Input: " + analogRead(remote1InputPin));
-  
+  float remoteInput = analogRead(remote1InputPin);
+  Serial.print("Remote Input: ");
+  Serial.println(remoteInput);  
   int throttleReading = 0; 
   
-  if(analogRead(remote1InputPin) >= 2){
+  if(analogRead(remoteInput >= .2)){
    
    //Remote Override
    /*-------------------------------------------------------------*/    
-    throttleReading = analogRead(remote1InputPin); 
-    throttleReading = map(throttleReading, 2, 3, 0, 255);
+    throttleReading = map(remoteInput, .2, .3, 0, 255);
     
   } else {
 

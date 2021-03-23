@@ -69,7 +69,7 @@ bool IsTurningRight = false;
 bool IsTurningLeft = false; 
 
 bool SafteyPass = false; 
-bool DebugMode = true; 
+bool DebugMode = false; 
 
 void setup() {
   
@@ -234,6 +234,11 @@ int getThrottlePedalValue()
   // map to calibration values 
   throttlePedalReading = map(throttlePedalReading, throttlePedalMin, throttlePedalMax, 0, 255);
   throttlePedalReading = constrain(throttlePedalReading, 0, 255);  
+
+  // if pedal is more than half way down set to full to eliminate noise 
+  if (throttlePedalReading > 170){
+    throttlePedalReading = 255; 
+  }
   
   // store in buffer array
   throttlePedalReadings[throttlePedalReadIndex] = throttlePedalReading; 

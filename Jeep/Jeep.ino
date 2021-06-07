@@ -32,7 +32,7 @@ int rightMotorBackwardsIndicatorPin = 23;      // Right Motor is going reverse i
 int rightMotorForwardOutputPin      = 24;      // Tell Right Motor to go forward pin
 int rightMotorBackwardsOutputPin    = 25;      // Tell Right Motor to go reverse pin
 int rightMotorForwardSpeedPin       = 6;       // pwm output right motor Forward Speed
-int rightMotorBackwardsSpeedPin     = 7;       // pwm output right motor Reverse
+int rightMotorBackwardsSpeedPin     = 5;       // pwm output right motor Reverse
 
 int leftMotorForwardSpeed     = 0; 
 int leftMotorBackwardsSpeed   = 0; 

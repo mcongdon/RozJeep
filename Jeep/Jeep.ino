@@ -20,15 +20,12 @@ int leftWheelTurningPin         = 35;        // pin for left (wheel) turning sen
 
 int safteyInputPin              = 52;       // input pin for sensor board
 
-int leftMotorForwardIndicatorPin    = 26;      // Left Motor is going forward indicator
-int leftMotorBackwardsIndicatorPin  = 27;      // Left Motor is going reverse indicator
+
 int leftMotorForwardOutputPin       = 28;      // Tell Left Motor to go forward pin
 int leftMotorBackwardsOutputPin     = 29;      // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin        = 9;        // pwm output left motor Forward Speed
-int leftMotorBackwardsSpeedPin      = 10;       // pwm output left motor Reverse
+int leftMotorForwardSpeedPin        = 10;        // pwm output left motor Forward Speed
+int leftMotorBackwardsSpeedPin      = 9;       // pwm output left motor Reverse
 
-int rightMotorForwardIndicatorPin   = 22;      // Right Motor is going forward indicator
-int rightMotorBackwardsIndicatorPin = 23;      // Right Motor is going reverse indicator
 int rightMotorForwardOutputPin      = 24;      // Tell Right Motor to go forward pin
 int rightMotorBackwardsOutputPin    = 25;      // Tell Right Motor to go reverse pin
 int rightMotorForwardSpeedPin       = 6;       // pwm output right motor Forward Speed
@@ -435,7 +432,7 @@ bool resolveIsMovingBackwardsState(){
   if(!IsMoving) {return false;}
 
   // if reverse pin 
-  return !digitalRead(backwardsPin);
+  return digitalRead(backwardsPin);
 }
 
 bool resolveIsTurningRightState(){

@@ -8,15 +8,11 @@
 // pin definitions
 int throttleInputPin    = A0;    // input pin for throttle pedal
 
-int remote1InputPin    = A1;     // Channel 1 on RC Transmitter (steering)
-int remote2InputPin    = A5;     // Channel 2 on RC Transmitter (throttle)
-int remote3InputPin    = A9;     // Channel 3 on RC Transmitter (???)
-
 int relayPin          = 30;                 // output pin for aux power relay 
 
 int backwardsPin                = 31;        // reverse switch pin
-int rightWheelTurningPin        = 34;        // pin for right (wheel) turning sensor if true turning left
-int leftWheelTurningPin         = 35;        // pin for left (wheel) turning sensor if true turning right
+int rightWheelTurningPin        = 49;        // pin for right (wheel) turning sensor if true turning left
+int leftWheelTurningPin         = 47;        // pin for left (wheel) turning sensor if true turning right
 
 int safteyInputPin              = 52;       // input pin for sensor board
 
@@ -78,9 +74,6 @@ void setup() {
   
   //Init throttle pins
   pinMode(throttleInputPin, INPUT);
-  pinMode(remote1InputPin, INPUT);
-  pinMode(remote2InputPin, INPUT);  
-  pinMode(remote3InputPin, INPUT);
   
   pinMode(relayPin, OUTPUT);
   pinMode(backwardsPin, INPUT);
@@ -201,20 +194,13 @@ void loop() {
 /*-------------------------------------------------------------*/
 int getThrottleValue()
 { 
- // if Remote has value return 
- int remoteThrottleValue = getRemoteThrottleValue();
+
  int throttlePedalValue = getThrottlePedalValue(); 
 
  if(DebugMode){
     Serial.print("Throttle Pedal:\t"); 
     Serial.print(throttlePedalValue); 
-    Serial.print("Remote Throttle:\t"); 
-    Serial.println(remoteThrottleValue); 
   }
- 
- if( remoteThrottleValue > 0) {
-  return remoteThrottleValue; 
- }
  
  return throttlePedalValue;
 }
@@ -255,46 +241,6 @@ int getThrottlePedalValue()
   }
   
   return throttlePedalTotal / numThrottlePedalReadings;    
-}
-
-
-// Get Remote Throttle Value
-/*-------------------------------------------------------------*/
-int getRemoteThrottleValue()
-{
- 
-  int remoteThrottleReading = pulseIn(remote2InputPin, HIGH, 25000); // throttle 
-  
-  // map to calibration values 
-  remoteThrottleReading = remoteThrottleReading - 1600; 
-
-  // make 0 if neg value
-  if(remoteThrottleReading < 0){
-    remoteThrottleReading = 0; 
-  }
-  
-  remoteThrottleReading = map(remoteThrottleReading, remoteThrottleMin, remoteThrottleMax, 0, 255);
-  
-  // store in buffer array
-  remoteThrottleReadings[remoteThrottleReadIndex] = remoteThrottleReading; 
-
-  // iterate buffer index
-  if (remoteThrottleReadIndex < numRemoteThrottleReadings){
-    remoteThrottleReadIndex++; 
-  } else {
-    remoteThrottleReadIndex = 0; 
-  }
-
-  
-  // return average of buffer array
-  int remoteThrottleTotal = 0; 
-
-  for(int i = 0; i < numRemoteThrottleReadings; i++){
-    remoteThrottleTotal += remoteThrottleReadings[i];
-  }
-
-  return remoteThrottleTotal / numRemoteThrottleReadings;       
- 
 }
 
 
@@ -438,10 +384,10 @@ bool resolveIsMovingBackwardsState(){
 bool resolveIsTurningRightState(){
   if(!IsMoving) {return false;} 
   
-  //if(!digitalRead(leftWheelTurningPin) && digitalRead(rightWheelTurningPin)){
-    //rightMotorAdjust = .7; 
-    //return true;
-  //}
+  if(!digitalRead(leftWheelTurningPin) && digitalRead(rightWheelTurningPin)){
+    rightMotorAdjust = .7; 
+    return true;
+  }
   
   rightMotorAdjust = 1; 
   return false;
@@ -450,10 +396,10 @@ bool resolveIsTurningRightState(){
 bool resolveIsTurningLeftState(){
   if(!IsMoving) {return false;}
   
-  //if(!digitalRead(rightWheelTurningPin) && digitalRead(leftWheelTurningPin)){
-    //leftMotorAdjust = .7;
-    //return true; 
-  //}
+  if(!digitalRead(rightWheelTurningPin) && digitalRead(leftWheelTurningPin)){
+    leftMotorAdjust = .7;
+    return true; 
+  }
   
   leftMotorAdjust = 1; 
   return false;    

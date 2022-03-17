@@ -166,6 +166,19 @@ void loop() {
     analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
     analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed);    
   }
+
+ if(DebugMode){
+    Serial.print("leftMotorForwardSpeed:\t"); 
+    Serial.print(leftMotorForwardSpeed); 
+    Serial.print("leftMotorBackwardsSpeed:\t"); 
+    Serial.print(leftMotorBackwardsSpeed); 
+    Serial.print("rightMotorForwardSpeed:\t"); 
+    Serial.print(rightMotorForwardSpeed); 
+    Serial.print("rightMotorBackwardsSpeed:\t"); 
+    Serial.print(rightMotorBackwardsSpeed); 
+    Serial.println("); 
+  }
+
   
 }// loop 
 
@@ -177,11 +190,6 @@ int getThrottleValue()
 { 
 
  int throttlePedalValue = getThrottlePedalValue(); 
-
- if(DebugMode){
-    Serial.print("Throttle Pedal:\t"); 
-    Serial.print(throttlePedalValue); 
-  }
  
  return throttlePedalValue;
 }
@@ -249,7 +257,7 @@ int getLeftMotorForwardSpeed(int throttle)
   if(!IsMovingBackwards)
   {
     if(leftMotorBackwardsSpeed == 0){
-      long newSpeed = throttle * leftMotorAdjust; 
+      long newSpeed = long(throttle) * leftMotorAdjust; 
       return  easeThrottleChange(leftMotorForwardSpeed, newSpeed);
     } else {
      // wait for reverse speed to get to zero
@@ -273,7 +281,7 @@ int getLeftMotorBackwardsSpeed(int throttle)
   if(IsMovingBackwards)
   {
       if(leftMotorForwardSpeed == 0){
-        long newSpeed = throttle * leftMotorAdjust; 
+        long newSpeed = long(throttle) * leftMotorAdjust; 
         return  easeThrottleChange(leftMotorBackwardsSpeed, newSpeed);
       } else {
         // wait for forward speed to get to zero 
@@ -296,7 +304,7 @@ int getRightMotorForwardSpeed(int throttle)
   if(!IsMovingBackwards)
   {
     if(rightMotorBackwardsSpeed == 0){
-      long newSpeed = throttle * rightMotorAdjust; 
+      long newSpeed = long(throttle) * rightMotorAdjust; 
       return easeThrottleChange(rightMotorForwardSpeed, newSpeed);
     } else {
      // wait for reverse speed to get to zero
@@ -319,7 +327,7 @@ int getRightMotorBackwardsSpeed(int throttle)
     if(IsMovingBackwards)
   {
       if(rightMotorForwardSpeed == 0){
-        long newSpeed = throttle * rightMotorAdjust; 
+        long newSpeed = long(throttle) * rightMotorAdjust; 
         return  easeThrottleChange(rightMotorBackwardsSpeed, newSpeed);
       } else {
         // wait for forward speed to get to zero 
@@ -346,7 +354,7 @@ bool resolveIsMovingBackwardsState(){
 bool resolveIsTurningRightState(){
   
   if(!digitalRead(leftWheelTurningPin) && digitalRead(rightWheelTurningPin)){
-    rightMotorAdjust = .5; 
+    rightMotorAdjust = 0.5; 
     return true;
   }
   
@@ -357,7 +365,7 @@ bool resolveIsTurningRightState(){
 bool resolveIsTurningLeftState(){
   
   if(!digitalRead(rightWheelTurningPin) && digitalRead(leftWheelTurningPin)){
-    leftMotorAdjust = .5;
+    leftMotorAdjust = 0.5;
     return true; 
   }
   

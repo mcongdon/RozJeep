@@ -170,12 +170,21 @@ void loop() {
       analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed /2);    
     }
   
-    if(IsTurningLeft){
+    else if(IsTurningLeft){
       analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed / 2);
       analogWrite(leftMotorBackwardsSpeedPin, leftMotorBackwardsSpeed / 2);
       analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
       analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed);     
     }
+
+    else {
+      analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
+      analogWrite(leftMotorBackwardsSpeedPin, leftMotorBackwardsSpeed);
+      analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
+      analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed);     
+
+    }
+
     // apply speed
 
   }

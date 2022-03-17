@@ -17,15 +17,15 @@ int leftWheelTurningPin         = 47;        // pin for left (wheel) turning sen
 int safteyInputPin              = 52;       // input pin for sensor board
 
 
-int leftMotorForwardOutputPin       = 28;      // Tell Left Motor to go forward pin
-int leftMotorBackwardsOutputPin     = 29;      // Tell Left Motor to go reverse pin
-int leftMotorForwardSpeedPin        = 10;        // pwm output left motor Forward Speed
-int leftMotorBackwardsSpeedPin      = 9;       // pwm output left motor Reverse
+int leftMotorForwardOutputPin       = 29;      // Tell Left Motor to go forward pin
+int leftMotorBackwardsOutputPin     = 28;      // Tell Left Motor to go reverse pin
+int leftMotorForwardSpeedPin        = 9;        // pwm output left motor Forward Speed
+int leftMotorBackwardsSpeedPin      = 10;       // pwm output left motor Reverse
 
 int rightMotorForwardOutputPin      = 24;      // Tell Right Motor to go forward pin
 int rightMotorBackwardsOutputPin    = 25;      // Tell Right Motor to go reverse pin
 int rightMotorForwardSpeedPin       = 6;       // pwm output right motor Forward Speed
-int rightMotorBackwardsSpeedPin     = 5;       // pwm output right motor Reverse
+int rightMotorBackwardsSpeedPin     = 3;       // pwm output right motor Reverse
 
 int leftMotorForwardSpeed     = 0; 
 int leftMotorBackwardsSpeed   = 0; 

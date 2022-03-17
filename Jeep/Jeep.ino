@@ -122,6 +122,16 @@ void loop() {
   leftMotorBackwardsSpeed   = getLeftMotorBackwardsSpeed(throttleValue);
   rightMotorForwardSpeed    = getRightMotorForwardSpeed(throttleValue);
   rightMotorBackwardsSpeed  = getRightMotorBackwardsSpeed(throttleValue);
+
+  if(IsTurningRight) {
+    rightMotorForwardSpeed = rightMotorForwardSpeed /2;
+    rightMotorBackwardsSpeed = rightMotorBackwardsSpeed /2; 
+  }
+
+  if(IsTurningLeft){
+    leftMotorForwardSpeed = leftMotorForwardSpeed /2; 
+    leftMotorBackwardsSpeed = leftMotorBackwardsSpeed /2;  
+  }
   
   //Saftey sensors
   /*-------------------------------------------------------------*/
@@ -235,18 +245,18 @@ int getThrottlePedalValue()
 
 // Ease Throttle Change 
 /*-------------------------------------------------------------*/
-int easeThrottleChange(int oldSpeed, long newSpeed){
-    int returnSpeed = int(newSpeed); 
-    if (abs(oldSpeed - returnSpeed) > SpeedDeltaThreshold) 
+int easeThrottleChange(int oldSpeed, int newSpeed){
+
+    if (abs(oldSpeed - newSpeed) > SpeedDeltaThreshold) 
     {
-       if(oldSpeed > returnSpeed) {
+       if(oldSpeed > newSpeed) {
         return (oldSpeed - SpeedDeltaThreshold); 
        } else if (newSpeed > oldSpeed){
         return (oldSpeed + SpeedDeltaThreshold); 
        }
     } 
 
-    return returnSpeed;
+    return newSpeed;
 }
 
 
@@ -257,8 +267,7 @@ int getLeftMotorForwardSpeed(int throttle)
   if(!IsMovingBackwards)
   {
     if(leftMotorBackwardsSpeed == 0){
-      long newSpeed = long(throttle) * leftMotorAdjust; 
-      return  easeThrottleChange(leftMotorForwardSpeed, newSpeed);
+      return  easeThrottleChange(leftMotorForwardSpeed, throttle);
     } else {
      // wait for reverse speed to get to zero
       return 0; 
@@ -281,8 +290,7 @@ int getLeftMotorBackwardsSpeed(int throttle)
   if(IsMovingBackwards)
   {
       if(leftMotorForwardSpeed == 0){
-        long newSpeed = long(throttle) * leftMotorAdjust; 
-        return  easeThrottleChange(leftMotorBackwardsSpeed, newSpeed);
+        return  easeThrottleChange(leftMotorBackwardsSpeed, throttle);
       } else {
         // wait for forward speed to get to zero 
         return 0; 
@@ -304,8 +312,7 @@ int getRightMotorForwardSpeed(int throttle)
   if(!IsMovingBackwards)
   {
     if(rightMotorBackwardsSpeed == 0){
-      long newSpeed = long(throttle) * rightMotorAdjust; 
-      return easeThrottleChange(rightMotorForwardSpeed, newSpeed);
+      return easeThrottleChange(rightMotorForwardSpeed, throttle);
     } else {
      // wait for reverse speed to get to zero
       return 0; 
@@ -327,8 +334,7 @@ int getRightMotorBackwardsSpeed(int throttle)
     if(IsMovingBackwards)
   {
       if(rightMotorForwardSpeed == 0){
-        long newSpeed = long(throttle) * rightMotorAdjust; 
-        return  easeThrottleChange(rightMotorBackwardsSpeed, newSpeed);
+        return  easeThrottleChange(rightMotorBackwardsSpeed, throttle);
       } else {
         // wait for forward speed to get to zero 
         return 0; 
@@ -348,27 +354,23 @@ int getRightMotorBackwardsSpeed(int throttle)
 /*-------------------------------------------------------------*/
 bool resolveIsMovingBackwardsState(){
   // if reverse pin 
-  return digitalRead(backwardsPin);
+  return !digitalRead(backwardsPin);
 }
 
 bool resolveIsTurningRightState(){
   
-  if(!digitalRead(leftWheelTurningPin) && digitalRead(rightWheelTurningPin)){
-    rightMotorAdjust = 0.5; 
+  if(!digitalRead(leftWheelTurningPin)){
     return true;
   }
   
-  rightMotorAdjust = 1; 
   return false;
 }
 
 bool resolveIsTurningLeftState(){
   
-  if(!digitalRead(rightWheelTurningPin) && digitalRead(leftWheelTurningPin)){
-    leftMotorAdjust = 0.5;
+  if(!digitalRead(rightWheelTurningPin)){
     return true; 
   }
-  
-  leftMotorAdjust = 1; 
-  return false;    
+
+return false;    
 }

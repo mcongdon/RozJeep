@@ -123,15 +123,7 @@ void loop() {
   rightMotorForwardSpeed    = getRightMotorForwardSpeed(throttleValue);
   rightMotorBackwardsSpeed  = getRightMotorBackwardsSpeed(throttleValue);
 
-  if(IsTurningRight) {
-    rightMotorForwardSpeed = rightMotorForwardSpeed /2;
-    rightMotorBackwardsSpeed = rightMotorBackwardsSpeed /2; 
-  }
 
-  if(IsTurningLeft){
-    leftMotorForwardSpeed = leftMotorForwardSpeed - 10; 
-    leftMotorBackwardsSpeed = leftMotorBackwardsSpeed - 10;  
-  }
   
   //Saftey sensors
   /*-------------------------------------------------------------*/
@@ -170,11 +162,22 @@ void loop() {
     digitalWrite(rightMotorForwardOutputPin, HIGH); 
     digitalWrite(rightMotorBackwardsOutputPin, HIGH);                      
     
+      
+    if(IsTurningRight) {
+      analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
+      analogWrite(leftMotorBackwardsSpeedPin, leftMotorBackwardsSpeed);
+      analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed /2);
+      analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed /2);    
+    }
+  
+    if(IsTurningLeft){
+      analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed / 2);
+      analogWrite(leftMotorBackwardsSpeedPin, leftMotorBackwardsSpeed / 2);
+      analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
+      analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed);     
+    }
     // apply speed
-    analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);
-    analogWrite(leftMotorBackwardsSpeedPin, leftMotorBackwardsSpeed);
-    analogWrite(rightMotorForwardSpeedPin, rightMotorForwardSpeed);
-    analogWrite(rightMotorBackwardsSpeedPin, rightMotorBackwardsSpeed);    
+
   }
 
  if(DebugMode){

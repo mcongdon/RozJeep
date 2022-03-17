@@ -129,8 +129,8 @@ void loop() {
   }
 
   if(IsTurningLeft){
-    leftMotorForwardSpeed = leftMotorForwardSpeed /2; 
-    leftMotorBackwardsSpeed = leftMotorBackwardsSpeed /2;  
+    leftMotorForwardSpeed = leftMotorForwardSpeed - 30; 
+    leftMotorBackwardsSpeed = leftMotorBackwardsSpeed - 30;  
   }
   
   //Saftey sensors

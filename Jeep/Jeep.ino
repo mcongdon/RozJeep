@@ -41,11 +41,11 @@ int SpeedDeltaThreshold = 10;
 int throttleValue   = 0;
 
 // buffer array for throttle pedal input 
-const int numThrottlePedalReadings = 5;
+const int numThrottlePedalReadings = 20;
 int throttlePedalReadings[numThrottlePedalReadings];      // the readings from the analog input
 int throttlePedalReadIndex = 0;                      // the index of the current reading
 int throttlePedalMin     = 0;
-int throttlePedalMax     = 800;
+int throttlePedalMax     = 500;
 
 
 // initial state stopped
@@ -99,7 +99,7 @@ void setup() {
 
   // calibrate min throttle pedal
   int initThrottlePedalValue = analogRead(throttleInputPin);
-  throttlePedalMin = initThrottlePedalValue + 30; 
+  throttlePedalMin = initThrottlePedalValue + 40; 
 
   
   // turn on power to dashboard 
@@ -232,11 +232,6 @@ int getThrottlePedalValue()
   int throttlePedalReading = analogRead(throttleInputPin);
 
 
- if(DebugMode){
-
-    Serial.print("throttlePedalReading: "); 
-    Serial.println(throttlePedalReading); 
-  }
   
   // map to calibration values 
   throttlePedalReading = map(throttlePedalReading, throttlePedalMin, throttlePedalMax, 0, 255);
@@ -249,7 +244,7 @@ int getThrottlePedalValue()
   }
 
   // low pass filter 
-  if (throttlePedalReading < 30){
+  if (throttlePedalReading < 40){
     throttlePedalReading = 0; 
   }
   

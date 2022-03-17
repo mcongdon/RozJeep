@@ -230,10 +230,6 @@ int getThrottlePedalValue()
 
   // get analog data from throttle pedal  
   int throttlePedalReading = analogRead(throttleInputPin);
-  
-  // map to calibration values 
-  throttlePedalReading = map(throttlePedalReading, throttlePedalMin, throttlePedalMax, 0, 255);
-  throttlePedalReading = constrain(throttlePedalReading, 0, 255);  
 
 
  if(DebugMode){
@@ -241,6 +237,11 @@ int getThrottlePedalValue()
     Serial.print("throttlePedalReading: "); 
     Serial.println(throttlePedalReading); 
   }
+  
+  // map to calibration values 
+  throttlePedalReading = map(throttlePedalReading, throttlePedalMin, throttlePedalMax, 0, 255);
+  throttlePedalReading = constrain(throttlePedalReading, 0, 255);  
+
   
   // High pass filter
   if (throttlePedalReading > 170){

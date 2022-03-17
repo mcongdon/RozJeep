@@ -155,10 +155,10 @@ void loop() {
     /*-------------------------------------------------------------*/    
 
     // enable motors
-    digitalWrite(leftMotorForwardOutputPin, !IsMovingBackwards); 
-    digitalWrite(leftMotorBackwardsOutputPin, IsMovingBackwards);   
-    digitalWrite(rightMotorForwardOutputPin, !IsMovingBackwards); 
-    digitalWrite(rightMotorBackwardsOutputPin, IsMovingBackwards);                      
+    digitalWrite(leftMotorForwardOutputPin, HIGH); 
+    digitalWrite(leftMotorBackwardsOutputPin, HIGH);   
+    digitalWrite(rightMotorForwardOutputPin, HIGH); 
+    digitalWrite(rightMotorBackwardsOutputPin, HIGH);                      
     
     // apply speed
     analogWrite(leftMotorForwardSpeedPin, leftMotorForwardSpeed);

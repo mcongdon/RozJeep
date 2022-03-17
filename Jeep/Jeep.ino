@@ -176,7 +176,7 @@ void loop() {
     Serial.print(rightMotorForwardSpeed); 
     Serial.print("rightMotorBackwardsSpeed:\t"); 
     Serial.print(rightMotorBackwardsSpeed); 
-    Serial.println("); 
+    Serial.println(""); 
   }
 
   

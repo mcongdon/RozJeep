@@ -190,13 +190,20 @@ void loop() {
   }
 
  if(DebugMode){
-    Serial.print("leftMotorForwardSpeed:\t"); 
-    Serial.print(leftMotorForwardSpeed); 
-    Serial.print("leftMotorBackwardsSpeed:\t"); 
+
+    Serial.print("throttleValue: "); 
+    Serial.print(throttleValue); 
+    Serial.print("\t");
+    Serial.print("leftMotorForwardSpeed: "); 
+    Serial.print(leftMotorForwardSpeed);
+    Serial.print("\t");  
+    Serial.print("leftMotorBackwardsSpeed: "); 
     Serial.print(leftMotorBackwardsSpeed); 
-    Serial.print("rightMotorForwardSpeed:\t"); 
+    Serial.print("\t");
+    Serial.print("rightMotorForwardSpeed: "); 
     Serial.print(rightMotorForwardSpeed); 
-    Serial.print("rightMotorBackwardsSpeed:\t"); 
+    Serial.print("\t");
+    Serial.print("rightMotorBackwardsSpeed: "); 
     Serial.print(rightMotorBackwardsSpeed); 
     Serial.println(""); 
   }

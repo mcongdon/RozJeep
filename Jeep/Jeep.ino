@@ -35,13 +35,13 @@ int rightMotorBackwardsSpeed  = 0;
 long leftMotorAdjust = 1;     // factor to reduce speed during turn  
 long rightMotorAdjust = 1;    // factor to reduce speed during turn 
 
-int SpeedDeltaThreshold = 20;
+int SpeedDeltaThreshold = 10;
 
 // throttle vars 
 int throttleValue   = 0;
 
 // buffer array for throttle pedal input 
-const int numThrottlePedalReadings = 20;
+const int numThrottlePedalReadings = 5;
 int throttlePedalReadings[numThrottlePedalReadings];      // the readings from the analog input
 int throttlePedalReadIndex = 0;                      // the index of the current reading
 int throttlePedalMin     = 0;
@@ -97,10 +97,9 @@ void setup() {
     throttlePedalReadings[i] = 0;
   }
 
-  
   // calibrate min throttle pedal
   int initThrottlePedalValue = analogRead(throttleInputPin);
-  throttlePedalMin = initThrottlePedalValue + 20; 
+  throttlePedalMin = initThrottlePedalValue + 30; 
 
   
   // turn on power to dashboard 
@@ -236,9 +235,21 @@ int getThrottlePedalValue()
   throttlePedalReading = map(throttlePedalReading, throttlePedalMin, throttlePedalMax, 0, 255);
   throttlePedalReading = constrain(throttlePedalReading, 0, 255);  
 
-  // if pedal is more than half way down set to full to eliminate noise 
+
+ if(DebugMode){
+
+    Serial.print("throttlePedalReading: "); 
+    Serial.println(throttlePedalReading); 
+  }
+  
+  // High pass filter
   if (throttlePedalReading > 170){
     throttlePedalReading = 255; 
+  }
+
+  // low pass filter 
+  if (throttlePedalReading < 30){
+    throttlePedalReading = 0; 
   }
   
   // store in buffer array

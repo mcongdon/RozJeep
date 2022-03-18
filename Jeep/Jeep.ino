@@ -239,7 +239,7 @@ int getThrottlePedalValue()
 
   
   // High pass filter
-  if (throttlePedalReading > 170){
+  if (throttlePedalReading > 200){
     throttlePedalReading = 255; 
   }
 
